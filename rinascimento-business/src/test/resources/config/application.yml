@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:h2:~/test_database
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create

@@ -1,0 +1,6 @@
+rootProject.name = 'rinascimento'
+
+include 'rinascimento-cms'
+include 'rinascimento-view'
+include 'rinascimento-business'
+

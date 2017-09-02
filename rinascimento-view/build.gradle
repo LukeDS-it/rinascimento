@@ -1,0 +1,12 @@
+apply plugin: 'groovy'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'http://ldsoftware.it:8081/nexus/content/repositories/releases/' }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile 'it.ldsoftware:primavera-entities:1.0.0-RELEASE'
+}

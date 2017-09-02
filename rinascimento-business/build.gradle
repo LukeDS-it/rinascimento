@@ -1,0 +1,64 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.6.RELEASE'
+        queryDslVersion = '4.1.4'
+        h2Version = '1.4.196'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url 'http://ldsoftware.it:8081/nexus/content/repositories/snapshots/' }
+    }
+}
+
+plugins {
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.8"
+}
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+    maven { url 'http://ldsoftware.it:8081/nexus/content/repositories/snapshots/' }
+}
+
+configurations {
+    providedRuntime
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+
+    compile 'it.ldsoftware:primavera-business:0.6.0-SNAPSHOT'
+
+    compile "com.querydsl:querydsl-root:$queryDslVersion"
+    compile "com.querydsl:querydsl-jpa:$queryDslVersion"
+    compile "com.querydsl:querydsl-apt:$queryDslVersion"
+
+    compile "org.projectlombok:lombok:1.16.18"
+
+    compile project(':rinascimento-view')
+
+    testCompile 'junit:junit:4.12'
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testCompile "com.h2database:h2:$h2Version"
+}
+
+querydsl {
+    jpa = true
+}
+
+idea {
+    module {
+        generatedSourceDirs += file 'src/querydsl/java'
+    }
+}
