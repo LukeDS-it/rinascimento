@@ -37,10 +37,10 @@ class ErrorController extends AbstractPageController {
 
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "The tenant has not been configured")
     @ExceptionHandler(TenantNotConfiguredException.class)
-    String tenantNotConfigured(HttpServletRequest request, TenantNotConfiguredException e) {
-        log.info "The tenant for ${request.getRequestURI()} has not been configured. Redirecting to configuration."
+    String tenantNotConfigured(TenantNotConfiguredException e) {
+        log.info "The tenant for ${e.tenant} has not been configured. Redirecting to configuration."
 
-        "login_configurer"
+        "cms-install-login"
     }
 
     @ResponseBody

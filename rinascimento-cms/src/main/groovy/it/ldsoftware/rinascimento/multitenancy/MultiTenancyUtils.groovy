@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service
 
 import java.util.regex.Matcher
 
-import static it.ldsoftware.rinascimento.util.PathConstants.PATH_EXTENSIONS
-import static it.ldsoftware.rinascimento.util.PathConstants.PATH_GUEST_PROPERTIES
-import static it.ldsoftware.rinascimento.util.PathConstants.PATH_TEMPLATES
+import static it.ldsoftware.rinascimento.util.PathConstants.*
 
 @Service
 @EnableConfigurationProperties(RinascimentoProperties.class)
@@ -34,6 +32,10 @@ class MultiTenancyUtils {
         getTenantRootDir() + "/" + PATH_EXTENSIONS + "/"
     }
 
+    String getTenantResourceDir() {
+        getTenantRootDir() + "/" + PATH_RESOURCES + "/"
+    }
+
     String getTenantTemplateDir(String url) {
         getTenantRootDir(url) + "/" + PATH_TEMPLATES + "/"
     }
@@ -48,11 +50,11 @@ class MultiTenancyUtils {
     }
 
     String getTenantRootDir() {
-        intersectProperties.filePath + tenantToPath(resolver.resolveCurrentTenantIdentifier())
+        getTenantRootDir(resolver.resolveCurrentTenantIdentifier())
     }
 
     String getTenantRootDir(String url) {
-        return intersectProperties.filePath + tenantToPath(getTenant(url))
+        intersectProperties.filePath + tenantToPath(getTenant(url))
     }
 
     private static String tenantToPath(String tenant) {

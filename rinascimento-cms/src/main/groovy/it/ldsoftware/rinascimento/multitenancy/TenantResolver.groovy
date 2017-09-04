@@ -6,7 +6,6 @@ import org.springframework.web.context.request.RequestAttributes
 import org.springframework.web.context.request.RequestContextHolder
 
 import static it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils.CURRENT_TENANT
-import static it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils.SCOPE_REQUEST
 
 /**
  * This class gives the current tenant

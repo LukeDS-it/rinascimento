@@ -13,12 +13,12 @@ class AdminController {
     @Autowired
     RinascimentoProperties properties
 
-    @RequestMapping("/master-login")
+    @RequestMapping("/cms-install-login")
     String configurerLoginCheck() {
         ""
     }
 
-    @RequestMapping("/master-admin")
+    @RequestMapping("/cms-install")
     String configurer() {
         ""
     }
