@@ -4,6 +4,7 @@ import groovy.xml.MarkupBuilder
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
 import org.springframework.context.ApplicationContext
 
+import javax.servlet.http.HttpServletRequest
 import java.util.regex.Matcher
 
 /**
@@ -18,11 +19,13 @@ import java.util.regex.Matcher
  */
 abstract class Widget {
 
-    private ApplicationContext context
+    ApplicationContext context
 
-    Widget(ApplicationContext context) {
-        this.context = context
-    }
+    WebPageDTO page
+    HttpServletRequest request
+    MarkupBuilder builder
+    Locale locale
+    def params
 
     @SuppressWarnings("GroovyAssignabilityCheck")
     Object methodMissing(String name, Object arguments) {
@@ -38,16 +41,54 @@ abstract class Widget {
         }
     }
 
+    Object propertyMissing(String name){
+        switch (name) {
+            case 'requestParams':
+                return request.getParameterMap()
+            default:
+                return null
+        }
+    }
+
     /**
-     * All CMS extension will need to implement this method that will use
-     * groovy's {@link MarkupBuilder} to add content to the page.
-     *
-     * @param builder the markup builder to create the content of the page
-     * @param page the page object to make the extension aware of the context it's in
-     * @param params additional parameters that are extension-specific
-     * @return
+     * All CMS widgets will need to implement this method that will add content to the page.
      */
-    abstract buildContent(MarkupBuilder builder, WebPageDTO page, Locale locale, def params)
+    abstract void buildContent()
+
+    /**
+     * All CMS widgets will need to implement this method that will build the configuration bit for the widget.
+     */
+    abstract void buildConfig()
+
+    /**
+     * Will return a list of additional CSS that are needed to correctly render the widget.
+     * CSS may be referred to as relative paths or absolute (http(s)://) paths. Relative paths will be resolved
+     * to <code>/resources/widgets/your-resource-path</code>.
+     * <p>
+     * Duplicate resources due to loading the same widget multiple times or widgets having same resources will
+     * automatically be removed. Please see the Widget Creation Guide for more information about paths.
+     * </p>
+     *
+     * @return a list of strings.
+     */
+    List<String> getCss() {
+        return []
+    }
+
+    /**
+     * Will return a list of additional CSS that are needed to correctly render the widget.
+     * CSS may be referred to as relative paths or absolute (http(s)://) paths. Relative paths will be resolved
+     * to <code>/resources/widgets/your-resource-path</code>.
+     * <p>
+     * Duplicate resources due to loading the same widget multiple times or widgets having same resources will
+     * automatically be removed. Please see the Widget Creation Guide for more information about paths.
+     * </p>
+     *
+     * @return a list of strings.
+     */
+    List<String> getJs() {
+        return []
+    }
 
     // TODO getAuthor, getName, getDescription, getVersion
 

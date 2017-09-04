@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 
+import javax.servlet.http.HttpServletRequest
+
 @Controller
 class PublicPageController extends AbstractPageController {
 
@@ -19,27 +21,27 @@ class PublicPageController extends AbstractPageController {
 
     @ResponseBody
     @RequestMapping("/{pageUID}")
-    String loadPage(@PathVariable String pageUID, Locale locale) {
+    String loadPage(@PathVariable String pageUID, HttpServletRequest request, Locale locale) {
         def page = findPage pageUID
-        buildPage page, locale, VIEWING_MODE
+        buildPage page, locale, request, VIEWING_MODE
     }
 
     @ResponseBody
     @RequestMapping("/")
-    String loadPage(Locale locale) {
-        loadPage DEFAULT_PAGE, locale
+    String loadPage(Locale locale, HttpServletRequest request) {
+        loadPage DEFAULT_PAGE, request, locale
     }
 
     @ResponseBody
     @RequestMapping("/testPage")
-    String testPage(Locale locale) {
+    String testPage(Locale locale, HttpServletRequest request) {
         WebPageDTO page = new WebPageDTO(
                 title: 'Hello world',
                 meta: ['hello': 'world'],
                 template: defaultTemplate(),
                 content: 'This page is working.'
         )
-        pageBuilder.buildPage page, locale, PageMode.VIEW
+        pageBuilder.buildPage page, locale, request, PageMode.VIEW
     }
 
     static TemplateDTO defaultTemplate() {

@@ -1,15 +1,16 @@
 package it.ldsoftware.rinascimento.service
 
 import groovy.xml.MarkupBuilder
+import it.ldsoftware.rinascimento.extension.Widget
 import it.ldsoftware.rinascimento.util.Constants
-import it.ldsoftware.rinascimento.util.ExtensionUtils
 import it.ldsoftware.rinascimento.util.PageMode
-import it.ldsoftware.rinascimento.view.template.TemplateWidgetDTO
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import static it.ldsoftware.rinascimento.util.PathUtils.resourcePath
+import javax.servlet.http.HttpServletRequest
+
+import static it.ldsoftware.rinascimento.util.PathUtils.*
 
 @Service
 class PageBuilder {
@@ -17,26 +18,33 @@ class PageBuilder {
     @Autowired
     private WidgetLoader loader
 
-    String buildPage(WebPageDTO page, Locale locale, PageMode mode) {
+    String buildPage(WebPageDTO page, Locale locale, HttpServletRequest request, PageMode mode) {
         page.init(locale)
 
         def sb = new StringWriter().append(Constants.HTML_START)
+        MarkupBuilder builder = getBuilder(sb)
+
+        loadExtensions page, locale, request, builder
+
+        builder.html(lang: page.language ?: 'en') {
+            head builder, page
+            body builder, page
+        }
+
+        sb
+    }
+
+    private static MarkupBuilder getBuilder(StringWriter sb) {
         MarkupBuilder builder = new MarkupBuilder(sb)
 
         builder.doubleQuotes = true
         builder.expandEmptyElements = false
         builder.omitEmptyAttributes = true
         builder.omitNullAttributes = true
-
-        builder.html(lang: page.language ?: 'en') {
-            head builder, page
-            body builder, page, locale, mode
-        }
-
-        sb
+        builder
     }
 
-    private static def head(MarkupBuilder builder, WebPageDTO page) {
+    private static head(MarkupBuilder builder, WebPageDTO page) {
         builder.head {
             title page.title
 
@@ -57,19 +65,21 @@ class PageBuilder {
                 link href: resourcePath(it, page.template), rel: 'stylesheet', type: 'text/css'
             }
 
-            // TODO plugin's css
+            page.wCss?.each {
+                link href: widgetResourcePath(it), rel: 'stylesheet', type: 'text/css'
+            }
         }
     }
 
-    private def body(MarkupBuilder builder, WebPageDTO page, Locale locale, PageMode mode) {
+    private static body(MarkupBuilder builder, WebPageDTO page) {
         builder.body {
 
             page.template.rows.each { row ->
                 div(class: row.cssClass) {
                     row.columns.each { col ->
-                        div(class: col.cssClass ,'') {
+                        div(class: col.cssClass, '') {
                             col.widgets.each {
-                                evalExtension it, page, locale, builder
+                                it.extension.buildContent()
                             }
                         }
                     }
@@ -84,12 +94,23 @@ class PageBuilder {
                 script type: 'text/javascript', src: resourcePath(it, page.template), ''
             }
 
-            // TODO plugin's js
+            page.wJs?.each {
+                script type: 'text/javascript', src: widgetResourcePath(it), ''
+            }
         }
     }
 
-    private void evalExtension(TemplateWidgetDTO block, WebPageDTO page, Locale locale, MarkupBuilder builder) {
-        loader.getExtension(block.script).buildContent(builder, page, locale, ExtensionUtils.jsonToObj(block.params))
+    private void loadExtensions(WebPageDTO page, Locale locale, HttpServletRequest request, MarkupBuilder builder) {
+        page.template.rows.each {
+            it.columns.each {
+                it.widgets.each {
+                    Widget extension = loader.getExtension(it.script, page, locale, request, builder, it.params)
+                    page.wCss += extension.getCss()
+                    page.wJs += extension.getJs()
+                    it.extension = extension
+                }
+            }
+        }
     }
 
 }

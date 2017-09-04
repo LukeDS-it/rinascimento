@@ -22,7 +22,7 @@ class TemplateDTO extends BaseDTO {
 
     String name, templateVersion, author
 
-    Set<String> css = new ArrayList<>(), js = new ArrayList<>()
+    Set<String> css = [], js = []
 
     List<TemplateRowDTO> rows = new ArrayList<>()
 

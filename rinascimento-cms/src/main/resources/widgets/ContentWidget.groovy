@@ -1,9 +1,6 @@
 package widgets
 
-import groovy.xml.MarkupBuilder
 import it.ldsoftware.rinascimento.extension.Widget
-import it.ldsoftware.rinascimento.view.content.WebPageDTO
-import org.springframework.context.ApplicationContext
 
 /**
  * This extension is the one that renders the main content of a web site.
@@ -21,12 +18,13 @@ import org.springframework.context.ApplicationContext
  */
 class ContentWidget extends Widget {
 
-    ContentWidget(ApplicationContext context) {
-        super(context)
+    @Override
+    void buildContent() {
+        builder.content(class: params.css, page.content)
     }
 
     @Override
-    def buildContent(MarkupBuilder builder, WebPageDTO page, Locale locale, def params) {
-        return builder.content(class: params.css, page.content)
+    void buildConfig() {
+
     }
 }

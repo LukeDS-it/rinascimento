@@ -11,4 +11,14 @@ class RinascimentoProperties {
      */
     String filePath
 
+    /**
+     * This is the master username used to allow access to the website installer
+     */
+    String masterUsername
+
+    /**
+     * This is the master password used to allow access to the website installer
+     */
+    String masterPassword
+
 }

@@ -11,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.core.context.SecurityContextHolder
 
+import javax.servlet.http.HttpServletRequest
 import javax.transaction.Transactional
 
 class AbstractPageController {
@@ -22,9 +23,9 @@ class AbstractPageController {
     @Autowired
     UserService userService
 
-    String buildPage(WebPageDTO page, Locale locale, PageMode mode) {
+    String buildPage(WebPageDTO page, Locale locale, HttpServletRequest request, PageMode mode) {
         checkPermissionsOn page
-        pageBuilder.buildPage page, locale, mode
+        pageBuilder.buildPage page, locale, request, mode
     }
 
     WebPageDTO findPage(String address) {

@@ -14,7 +14,7 @@ class WebPageDTO extends TranslatableDTO<WebPageTranslationDTO> {
     Set<GroupDTO> groupsAllowed
     Set<RoleDTO> rolesAllowed
 
-    List<String> css, js
+    Set<String> css = [], js = [], wCss = [], wJs = []
 
     Map<String, String> meta = new HashMap<>()
 

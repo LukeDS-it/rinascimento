@@ -4,6 +4,7 @@ import groovy.util.logging.Slf4j
 import it.ldsoftware.primavera.i18n.LocalizationService
 import it.ldsoftware.primavera.services.interfaces.PropertyService
 import it.ldsoftware.rinascimento.exception.PageNotFoundException
+import it.ldsoftware.rinascimento.exception.TenantNotConfiguredException
 import it.ldsoftware.rinascimento.service.TemplateService
 import it.ldsoftware.rinascimento.util.PageMode
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
@@ -33,6 +34,14 @@ class ErrorController extends AbstractPageController {
 
     @Autowired
     private PropertyService propertyService
+
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "The tenant has not been configured")
+    @ExceptionHandler(TenantNotConfiguredException.class)
+    String tenantNotConfigured(HttpServletRequest request, TenantNotConfiguredException e) {
+        log.info "The tenant for ${request.getRequestURI()} has not been configured. Redirecting to configuration."
+
+        "login_configurer"
+    }
 
     @ResponseBody
     @ExceptionHandler(PageNotFoundException.class)
