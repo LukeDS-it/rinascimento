@@ -5,6 +5,8 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url 'http://ldsoftware.it:8081/nexus/content/repositories/releases/' }
+        maven { url 'http://ldsoftware.it:8081/nexus/content/repositories/snapshots/' }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -22,6 +24,8 @@ sourceCompatibility = 1.8
 repositories {
     mavenLocal()
     mavenCentral()
+    maven { url 'http://ldsoftware.it:8081/nexus/content/repositories/releases/' }
+    maven { url 'http://ldsoftware.it:8081/nexus/content/repositories/snapshots/' }
 }
 
 configurations {
