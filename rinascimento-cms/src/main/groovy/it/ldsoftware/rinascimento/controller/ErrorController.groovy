@@ -5,6 +5,7 @@ import it.ldsoftware.primavera.i18n.LocalizationService
 import it.ldsoftware.primavera.services.interfaces.PropertyService
 import it.ldsoftware.rinascimento.exception.PageNotFoundException
 import it.ldsoftware.rinascimento.exception.TenantNotConfiguredException
+import it.ldsoftware.rinascimento.exception.WebResourceNotFoundException
 import it.ldsoftware.rinascimento.service.TemplateService
 import it.ldsoftware.rinascimento.util.PageMode
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
@@ -35,6 +36,11 @@ class ErrorController extends AbstractPageController {
     @Autowired
     private PropertyService propertyService
 
+    @ExceptionHandler(WebResourceNotFoundException.class)
+    void resourceNotFound(WebResourceNotFoundException e) {
+        log.info "Could not find resource at path ${e.resource}"
+    }
+
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "The tenant has not been configured")
     @ExceptionHandler(TenantNotConfiguredException.class)
     String tenantNotConfigured(TenantNotConfiguredException e) {
@@ -45,10 +51,10 @@ class ErrorController extends AbstractPageController {
 
     @ResponseBody
     @ExceptionHandler(PageNotFoundException.class)
-    String pageNotFound(Locale locale) {
+    String pageNotFound(HttpServletRequest request, Locale locale) {
         LocalizationService ls = new LocalizationService(messageSource, locale)
 
-        buildErrorPage ls.translate(TITLE_NOT_FOUND), ls.translate(CONTENT_NOT_FOUND), KEY_404_TEMPLATE, locale
+        buildErrorPage ls.translate(TITLE_NOT_FOUND), ls.translate(CONTENT_NOT_FOUND), KEY_404_TEMPLATE, locale, request
     }
 
     @ResponseBody
@@ -59,11 +65,11 @@ class ErrorController extends AbstractPageController {
 
         log.error "Unexpected error while browsing page ${request.getContextPath()}", e
 
-        buildErrorPage ls.translate(TITLE_SERVER_ERROR), ls.translate(CONTENT_SERVER_ERROR), KEY_500_TEMPLATE, locale
+        buildErrorPage ls.translate(TITLE_SERVER_ERROR), ls.translate(CONTENT_SERVER_ERROR), KEY_500_TEMPLATE, locale, request
 
     }
 
-    private String buildErrorPage(String title, String content, String template, Locale locale) {
+    private String buildErrorPage(String title, String content, String template, Locale locale, HttpServletRequest request) {
         Long errorTemplate = propertyService.findByKey(template).getValue() as Long
 
         WebPageDTO page = new WebPageDTO(
@@ -73,7 +79,7 @@ class ErrorController extends AbstractPageController {
                 template: templateService.findOne(errorTemplate)
         )
 
-        buildPage page, locale, PageMode.VIEW
+        buildPage page, locale, request, PageMode.VIEW
     }
 
 }

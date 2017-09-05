@@ -1,8 +1,6 @@
 package it.ldsoftware.rinascimento.multitenancy
 
-import it.ldsoftware.rinascimento.exception.WebResourceNotFoundException
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.core.io.FileSystemResource
@@ -21,10 +19,9 @@ import java.util.regex.Matcher
  *
  * @author Luca Di Stefano
  */
+@Slf4j
 @Service
 class MultiTenancyResourceResolver extends AbstractResourceResolver {
-
-    private final Log logger = LogFactory.getLog(getClass())
 
     @Autowired
     private MultiTenancyUtils utils
@@ -33,10 +30,11 @@ class MultiTenancyResourceResolver extends AbstractResourceResolver {
     private ApplicationContext applicationContext
 
     @Override
+    @SuppressWarnings("GroovyAssignabilityCheck")
     protected Resource resolveResourceInternal(HttpServletRequest request, String requestPath, List<? extends Resource> locations, ResourceResolverChain chain) {
 
         switch (requestPath) {
-            case ~ /^\/?widgets(.*)/:
+            case ~/^\/?widgets(.*)/:
                 String realRes = Matcher.lastMatcher[0][1]
 
                 String resPath = utils.getTenantExtensionDir().concat(realRes)
@@ -48,8 +46,9 @@ class MultiTenancyResourceResolver extends AbstractResourceResolver {
                 if (r.exists())
                     return r
 
-                throw new WebResourceNotFoundException(requestPath)
-            case ~ /^\/?templates(.*)/:
+                break
+
+            case ~/^\/?templates(.*)/:
                 String realRes = Matcher.lastMatcher[0][1]
 
                 String resPath = utils.getTenantResourcePath(request.getRequestURL().toString(), realRes)
@@ -61,30 +60,20 @@ class MultiTenancyResourceResolver extends AbstractResourceResolver {
                 Resource r = applicationContext.getResource("classpath:templates/${realRes}")
                 if (r.exists())
                     return r
-                throw new WebResourceNotFoundException(requestPath)
+                break
+
+            case ~/^\/?(?:cms_install|cms_admin)(.*)/:
+                Resource r = applicationContext.getResource("classpath:${requestPath}")
+                if (r.exists())
+                    return r
+
+                break
         }
 
-
-
-
-//            Resource r = applicationContext.getResource("classpath:" + "templates/" + requestPath)
-//            if (r.exists())
-//                return r
-//            if (isInAdminContext(request)) {
-//                r = applicationContext.getResource("classpath:" + "templates/admin/app/" + requestPath)
-//                if (r.exists())
-//                    return r
-//                r = applicationContext.getResource("classpath:" + "templates/admin/node_modules/" + requestPath)
-//                if (r.exists())
-//                    return r
+        log.info "Could not find resource ${requestPath}"
 
         return chain.resolveResource(request, requestPath, locations)
     }
-
-//    private static boolean isInAdminContext(HttpServletRequest request) {
-//        String referrer = request.getHeader("referer")
-//        return referrer && referrer =~ ".*(?:icms_admin|icms_install|live_edit).*"
-//    }
 
     @Override
     protected String resolveUrlPathInternal(String resourceUrlPath, List<? extends Resource> locations, ResourceResolverChain chain) {
