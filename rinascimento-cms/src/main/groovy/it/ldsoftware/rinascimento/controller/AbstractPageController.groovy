@@ -35,6 +35,13 @@ class AbstractPageController {
         page
     }
 
+    String serveStaticPage(String pageResource) {
+        def resource = getClass().getClassLoader().getResource(pageResource)
+        if (resource)
+            resource.text
+        throw new PageNotFoundException("pageResource")
+    }
+
     @Transactional
     void checkPermissionsOn(WebPageDTO page) {
         if (page.groupsAllowed || page.rolesAllowed) {

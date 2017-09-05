@@ -10,11 +10,27 @@
 .settings
 .springBeans
 
+# IDEs and editors
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
+
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 ### NetBeans ###
 nbproject/private/
@@ -24,3 +40,28 @@ dist/
 nbdist/
 .nb-gradle/
 **/querydsl/**
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+
+# dependencies
+**/node_modules
+
+# misc
+**/.sass-cache
+**/connect.lock
+**/coverage
+**/libpeerconnection.log
+npm-debug.log
+testem.log
+**/typings
+
+# e2e
+**/e2e/*.js
+**/e2e/*.map
+
+# System Files
+.DS_Store
+Thumbs.db
