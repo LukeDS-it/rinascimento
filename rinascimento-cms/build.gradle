@@ -48,3 +48,25 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('org.assertj:assertj-core:3.8.0')
 }
+
+/**
+ * Copies the bundle generated from yarn installation into the main resources folder
+ * so that the CMS can resolve them at runtime
+ */
+task copyWebAppResources(type: Copy) {
+    from 'build/www/resources'
+    into 'build/resources/main'
+}
+
+/**
+ * The war task must depend on the custom copy web app resources
+ * task in order to add those resources correctly to the WAR file
+ */
+war {
+    dependsOn copyWebAppResources
+    archiveName = 'rinascimento.war'
+}
+
+bootRun {
+    addResources = true
+}

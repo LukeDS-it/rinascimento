@@ -62,7 +62,7 @@ class MultiTenancyResourceResolver extends AbstractResourceResolver {
                     return r
                 break
 
-            case ~/^\/?(?:cms_install|cms_admin)(.*)/:
+            case ~/^\/?admin(.*)/:
                 Resource r = applicationContext.getResource("classpath:${requestPath}")
                 if (r.exists())
                     return r
