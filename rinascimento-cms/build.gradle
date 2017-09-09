@@ -53,8 +53,8 @@ dependencies {
  * Copies the bundle generated from yarn installation into the main resources folder
  * so that the CMS can resolve them at runtime
  */
-task copyWebAppResources(type: Copy) {
-    from 'build/www/resources'
+task moveWebApp(type: Copy) {
+    from 'build/www/resources', 'build/www/cms-admin.html', 'build/www/cms-install.html'
     into 'build/resources/main'
 }
 
@@ -63,7 +63,7 @@ task copyWebAppResources(type: Copy) {
  * task in order to add those resources correctly to the WAR file
  */
 war {
-    dependsOn copyWebAppResources
+    dependsOn moveWebApp
     archiveName = 'rinascimento.war'
 }
 
