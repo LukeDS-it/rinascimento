@@ -35,6 +35,10 @@ const commonConfig: webpack.Configuration = {
                 test: /\.scss/,
                 loaders: ['to-string-loader', 'css-loader', 'sass-loader'],
                 exclude: /global\.scss/
+            },
+            {
+                test: /global\.scss/,
+                loaders: ['style-loader', 'css-loader', 'sass-loader']
             }
         ]
     },
@@ -49,7 +53,7 @@ const commonConfig: webpack.Configuration = {
             hash: false,
             title: 'Rinascimento installation',
             template: './src/main/webapp/index.html',
-            chunks: ['vendor', 'polyfills', 'installer'],
+            chunks: ['vendor', 'polyfills', 'installer', 'global'],
             // chunksSortMode: 'dependency',
             filename: 'cms-install.html'
         }),
@@ -57,7 +61,7 @@ const commonConfig: webpack.Configuration = {
             hash: false,
             title: 'Rinascimento administration',
             template: './src/main/webapp/index.html',
-            chunks: ['vendor', 'polyfills', 'admin'],
+            chunks: ['vendor', 'polyfills', 'admin', 'global'],
             // chunksSortMode: 'dependency',
             filename: 'cms-admin.html'
         }),
