@@ -29,7 +29,7 @@ const commonConfig: webpack.Configuration = {
                 test: /\.html$/, loader: 'raw-loader', exclude: ['./src/main/webapp/index.html']
             },
             {
-                test: /\.(png|jpe?g|svg)$/, use: [{loader: 'file-loader?name=[path]/[name].[ext]'}]
+                test: /\.(jpe?g|png|gif|svg|woff2?|ttf|eot)$/, use: [{loader: 'file-loader?name=resources/admin/[name].[ext]'}]
             },
             {
                 test: /\.scss/,
@@ -37,8 +37,17 @@ const commonConfig: webpack.Configuration = {
                 exclude: /global\.scss/
             },
             {
+                test: /\.css/,
+                loaders: ['to-string-loader', 'css-loader'],
+                exclude: /vendor\.css/
+            },
+            {
                 test: /global\.scss/,
                 loaders: ['style-loader', 'css-loader', 'sass-loader']
+            },
+            {
+                test: /vendor\.css/,
+                loaders: ['style-loader', 'css-loader']
             }
         ]
     },
