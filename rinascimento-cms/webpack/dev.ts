@@ -1,6 +1,7 @@
-import * as webpack from 'webpack';
-import * as BrowserSyncPlugin from 'browser-sync-webpack-plugin';
+import webpack = require('webpack');
 
+// noinspection JSUnusedLocalSymbols
+const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const commons = require('./common');
 const webpackMerge = require('webpack-merge');
 
