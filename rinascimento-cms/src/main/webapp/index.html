@@ -1,13 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title><%= htmlWebpackPlugin.options.title %></title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta charset="utf-8">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        body {
+            background-color: #313132;
+            color: #FFFFFF;
+        }
+
+        .outer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .invisible {
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body>
-  <app-root>Loading...</app-root>
+<app-root>
+    <div class="outer">
+        <img id="spinner" src="spinner.gif" />
+        <span id="loading">Loading control panel, please wait...</span>
+        <span id="error" class="alert alert-danger invisible">
+            There was an error loading the control panel, I'm sorry :(
+        </span>
+    </div>
+</app-root>
 </body>
 </html>

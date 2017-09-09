@@ -26,4 +26,6 @@ const devEnv: webpack.Configuration = {
     ]
 };
 
-module.exports = webpackMerge(commons, devEnv);
+const merged = webpackMerge(commons, devEnv);
+
+module.exports = merged;

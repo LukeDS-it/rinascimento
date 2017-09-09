@@ -7,9 +7,11 @@
     ],
     "scripts": {
         "build": "yarn install && yarn run webpack:build",
-        "start": "yarn run webpack:start",
+        "start-install": "yarn run webpack:installer",
+        "start-admin": "yarn run webpack:admin",
         "webpack:build": "webpack -p --config webpack/prod.ts --display-error-details",
-        "webpack:start": "webpack-dev-server --config webpack/dev.ts --progress --inline --hot --profile --port=4260 --debug"
+        "webpack:installer": "webpack-dev-server --config webpack/dev-installer.ts --progress --inline --hot --profile --port=4260 --debug",
+        "webpack:admin": "webpack-dev-server --config webpack/dev-admin.ts --progress --inline --hot --profile --port=4260 --debug"
     },
     "private": false,
     "dependencies": {

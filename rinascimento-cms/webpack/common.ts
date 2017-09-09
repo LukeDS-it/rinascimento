@@ -1,6 +1,5 @@
 const StringReplacePlugin = require('string-replace-webpack-plugin');
 import * as webpack from 'webpack';
-import * as HtmlWebpackPlugin from 'html-webpack-plugin';
 import * as path from 'path';
 
 const commonConfig: webpack.Configuration = {
@@ -57,22 +56,6 @@ const commonConfig: webpack.Configuration = {
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery'
-        }),
-        new HtmlWebpackPlugin({
-            hash: false,
-            title: 'Rinascimento installation',
-            template: './src/main/webapp/index.html',
-            chunks: ['vendor', 'polyfills', 'installer', 'global'],
-            // chunksSortMode: 'dependency',
-            filename: 'cms-install.html'
-        }),
-        new HtmlWebpackPlugin({
-            hash: false,
-            title: 'Rinascimento administration',
-            template: './src/main/webapp/index.html',
-            chunks: ['vendor', 'polyfills', 'admin', 'global'],
-            // chunksSortMode: 'dependency',
-            filename: 'cms-admin.html'
         }),
         new StringReplacePlugin()
     ]

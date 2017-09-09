@@ -1,0 +1,39 @@
+@import './theme.scss';
+
+/* ==============================================================
+                     Custom bootstrap theme
+ ============================================================== */
+
+@mixin backgrounds($back, $fore) {
+    background-color: $back;
+    color: $fore;
+}
+
+body {
+    @include backgrounds($main-color, #FFF);
+    font-weight: 300;
+}
+
+.bg-success .btn-success {
+    @include backgrounds($color-success, #FFF);
+}
+
+.bg-info .btn-info {
+    @include backgrounds($color-info, #FFF);
+}
+
+.bg-warning .btn-warning {
+    @include backgrounds($color-warning, #FFF);
+}
+
+.bg-danger .btn-danger {
+    @include backgrounds($color-danger, #FFF);
+}
+
+.bg-primary .btn-primary {
+    @include backgrounds($color-primary, #FFF);
+}
+
+.bg-dark .btn-dark {
+    @include backgrounds($color-dark, #FFF);
+}

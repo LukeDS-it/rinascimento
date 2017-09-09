@@ -1,7 +1,4 @@
-import {platformBrowserDynamic} from '@angular/platform-browser-dynamic';
+import {AdminModule} from './admin.module';
+import {initApp} from '../shared/app.init';
 
-import {AppModule} from '../app.module';
-
-platformBrowserDynamic()
-    .bootstrapModule(AppModule)
-    .catch(reason => console.error(reason));
+initApp(AdminModule);
