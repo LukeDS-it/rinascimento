@@ -9,31 +9,60 @@
     color: $fore;
 }
 
+@mixin border($color) {
+    border-color: $color;
+}
+
 body {
     @include backgrounds($main-color, #FFF);
     font-weight: 300;
 }
 
-.bg-success .btn-success {
+.bg-success, .btn-success {
     @include backgrounds($color-success, #FFF);
 }
 
-.bg-info .btn-info {
+.btn-success {
+    @include border($color-success);
+}
+
+.bg-info, .btn-info {
     @include backgrounds($color-info, #FFF);
 }
 
-.bg-warning .btn-warning {
+.btn-info {
+    @include border($color-info);
+}
+
+.bg-warning, .btn-warning {
     @include backgrounds($color-warning, #FFF);
 }
 
-.bg-danger .btn-danger {
+.btn-warning {
+    @include border($color-warning);
+}
+
+.bg-danger, .btn-danger {
     @include backgrounds($color-danger, #FFF);
 }
 
-.bg-primary .btn-primary {
+.btn-danger {
+    @include border($color-danger)
+}
+
+.bg-primary, .btn-primary {
     @include backgrounds($color-primary, #FFF);
 }
 
-.bg-dark .btn-dark {
+.btn-primary {
+    @include border($color-primary);
+}
+
+.bg-emboss {
+    @include backgrounds($color-emboss, #FFF);
+}
+
+.btn-dark {
     @include backgrounds($color-dark, #FFF);
+    @include border($color-dark);
 }

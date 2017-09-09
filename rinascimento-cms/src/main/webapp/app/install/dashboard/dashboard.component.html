@@ -1,14 +1,18 @@
 <div class="container-fluid">
     <h1>Rinascimento installer</h1>
-    <div class="card bg-dark">
+    <div class="card bg-emboss">
+        <div class="card-header text-center">
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-primary">Welcome!</button>
+                <button class="btn btn-dark">Directory listing</button>
+                <button class="btn btn-dark">Database configuration</button>
+                <button class="btn btn-dark">Website administrator</button>
+                <button class="btn btn-dark">Website info</button>
+                <button class="btn btn-dark">Done!</button>
+            </div>
+        </div>
         <div class="card-body">
             <router-outlet></router-outlet>
-        </div>
-        <div class="card-footer">
-            <div class="progress">
-                <div class="progress-bar bg-success" role="progressbar" ngStyle="width: {{progress}}%" aria-valuemin="0"
-                     aria-valuemax="100"></div>
-            </div>
         </div>
     </div>
 </div>

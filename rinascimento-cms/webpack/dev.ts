@@ -21,7 +21,7 @@ const devEnv: webpack.Configuration = {
             port: 4200,
             proxy: 'http://localhost:4260'
         }, {
-            reload: false
+            reload: true
         })
     ]
 };

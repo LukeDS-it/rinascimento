@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 
 @Component({
-    template: 'Welcome'
+    templateUrl: './welcome.component.html'
 })
 export class WelcomeComponent {
 
