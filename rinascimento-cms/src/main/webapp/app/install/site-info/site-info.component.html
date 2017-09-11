@@ -1,0 +1,66 @@
+<h2>Website information</h2>
+
+<div class="alert alert-success text-center">
+    <span class="fa fa-check-circle-o"></span> Database was configured successfully!
+</div>
+
+<p>
+    This section will let you configure some details of your website. For example, if you want to be able to track
+    your visitors via Google Analytics you can insert the property id in the field below, or if you want your users
+    to be able to log in via Google, you can set the secret keys inside the fields below.
+</p>
+
+<form (ngSubmit)="doWork()">
+    <div class="form-group row">
+        <label for="title" class="col-sm-2 col-form-label">Website title</label>
+        <div class="col-sm-10">
+            <input class="form-control form-control-sm" id="title" name="title" [(ngModel)]="siteInfo.title" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="description">Website description</label>
+        <div class="col-sm-10">
+            <input class="form-control form-control-sm" id="description" name="description" [(ngModel)]="siteInfo.description" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="analytics">Google analytics key</label>
+        <div class="col-sm-10">
+            <input class="form-control form-control-sm" id="analytics" name="analytics" [(ngModel)]="siteInfo.analytics"/>
+        </div>
+        <small class="form-text text-muted">
+            Example: UA-12345678-9
+        </small>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="clientId">Google Client ID</label>
+        <div class="col-sm-10">
+            <input class="form-control form-control-sm" id="clientId" name="clientId" [(ngModel)]="siteInfo.clientId" />
+        </div>
+        <small class="form-text text-muted">
+            This will allow your application to use Google Login systems. To set up a new client ID refer to the
+            official documentation at
+            <a href="https://developers.google.com/identity/sign-in/web/devconsole-project">
+                https://developers.google.com/identity/sign-in/web/devconsole-project
+            </a>
+        </small>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input class="form-control form-control-sm" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input class="form-control form-control-sm" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input class="form-control form-control-sm" />
+        </div>
+    </div>
+</form>

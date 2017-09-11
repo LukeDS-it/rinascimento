@@ -1,0 +1,58 @@
+<h2>Main user</h2>
+
+<div class="alert alert-success text-center">
+    <span class="fa fa-check-circle-o"></span> Website information correctly set!
+</div>
+
+<p>
+    It's time to create the main user for the website. You can either choose to create a new user manually or login
+    via google to spare time and avoid having too many passwords to remember.
+</p>
+
+<form (ngSubmit)="doWork()">
+    <div class="form-group row">
+        <label for="name" class="col-sm-2 col-form-label">Real name</label>
+        <div class="col-sm-10">
+            <input id="name" name="name" class="form-control form-control-sm" [(ngModel)]="user.name" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="surname" class="col-sm-2 col-form-label">Surname</label>
+        <div class="col-sm-10">
+            <input id="surname" name="surname" class="form-control form-control-sm" [(ngModel)]="user.surname"/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="email" class="col-sm-2 col-form-label">Email</label>
+        <div class="col-sm-10">
+            <input type="email" id="email" name="email" class="form-control form-control-sm" [(ngModel)]="user.email"
+                   required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="username" class="col-sm-2 col-form-label">Username</label>
+        <div class="col-sm-10">
+            <input id="username" name="username" class="form-control form-control-sm" [(ngModel)]="user.username"
+                   required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="password" class="col-sm-2 col-form-label">Password</label>
+        <div class="col-sm-10">
+            <input type="password" id="password" name="password" class="form-control form-control-sm"
+                   [(ngModel)]="user.password" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="password" class="col-sm-2 col-form-label">Confirm Password</label>
+        <div class="col-sm-10">
+            <input type="password" id="confirm" name="confirm" class="form-control form-control-sm"
+                   [(ngModel)]="user.confirm" required/>
+        </div>
+    </div>
+    <div class="text-center">
+        <button type="submit" class="btn btn-lg btn-warning">
+            Create user
+        </button>
+    </div>
+</form>

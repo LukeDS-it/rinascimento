@@ -66,3 +66,50 @@ body {
     @include backgrounds($color-dark, #FFF);
     @include border($color-dark);
 }
+
+input {
+    background-color: $color-dark !important;
+    color: #FFF !important;
+    border: 2px solid transparent;
+
+    &:focus {
+        background-color: #464646 !important;
+        border-color: $color-primary !important;
+    }
+
+    &.ng-valid[required], .ng-valid.required {
+        border-color: $color-success;
+        color: $color-success;
+    }
+
+    &.ng-invalid {
+        border-color: $color-danger;
+        color: $color-danger;
+    }
+}
+
+.alert {
+    background-color: transparent;
+    border: 2px solid;
+    font-weight: bold;
+
+    &.alert-success {
+        @include border($color-success);
+        color: $color-success;
+    }
+
+    &.alert-info {
+        @include border($color-info);
+        color: $color-info;
+    }
+
+    &.alert-danger {
+        @include border($color-danger);
+        color: $color-danger;
+    }
+
+    &.alert-warning {
+        @include border($color-warning);
+        color: $color-warning;
+    }
+}

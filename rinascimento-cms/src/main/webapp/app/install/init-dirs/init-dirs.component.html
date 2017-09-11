@@ -5,10 +5,12 @@
     read/write permissions, this will end correctly. In case of errors, check that the application
     server where Rinascimento is published has full read/write access to the root base directory.
 </p>
-<span class="alert alert-info">
+<div class="alert alert-info">
     <span class="fa fa-info-circle"></span>
     Rinascimento has detected the following base directory: <strong>{{baseDirectory}}</strong>
-</span>
+</div>
 <div class="text-center">
-    <button class="btn btn-warning btn-lg">Create directory structure</button>
+    <button class="btn btn-warning btn-lg" (click)="doWork()">
+        Create directory structure
+    </button>
 </div>

@@ -1,0 +1,36 @@
+<h2>Database installation</h2>
+
+<div class="alert alert-success">
+    <span class="fa fa-check-circle-o"></span> The directory initialisation was successful!
+</div>
+
+<p>
+    The installer will now try to initialise the database. You now need to provide the details of the database
+    instance that you want to use as the data source for the CMS.
+</p>
+
+<form (ngSubmit)="doWork()">
+    <div class="form-group row">
+        <label for="db-url" class="col-sm-2 col-form-label">Database url</label>
+        <div class="col-sm-10">
+            <input id="db-url" name="db-url" class="form-control form-control-sm" [(ngModel)]="dbInfo.url"/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="db-user" class="col-sm-2 col-form-label">Database username</label>
+        <div class="col-sm-10">
+            <input id="db-user" name="db-user" class="form-control form-control-sm" [(ngModel)]="dbInfo.user"/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="db-pass" class="col-sm-2 col-form-label">Database password</label>
+        <div class="col-sm-10">
+            <input id="db-pass" name="db-pass" class="form-control form-control-sm" [(ngModel)]="dbInfo.pass"/>
+        </div>
+    </div>
+    <div class="text-center">
+        <button type="submit" class="btn btn-lg btn-warning">
+            Install now
+        </button>
+    </div>
+</form>
