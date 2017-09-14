@@ -1,10 +1,12 @@
 package it.ldsoftware.rinascimento.util
 
 import groovy.util.logging.Slf4j
-import it.ldsoftware.rinascimento.view.template.TemplateDTO
-import it.ldsoftware.rinascimento.view.template.TemplateWidgetDTO
 import it.ldsoftware.rinascimento.view.template.TemplateColumnDTO
+import it.ldsoftware.rinascimento.view.template.TemplateDTO
 import it.ldsoftware.rinascimento.view.template.TemplateRowDTO
+import it.ldsoftware.rinascimento.view.template.TemplateWidgetDTO
+
+import static it.ldsoftware.rinascimento.util.TemplateImporter.ParsingMode.*
 
 @Slf4j
 class TemplateImporter {
@@ -63,7 +65,7 @@ class TemplateImporter {
                 startJsParsing index
                 break
             case { line.startsWith('-') }:
-                startNewRow index
+                startNewRow index, actual
                 break
             case { line.startsWith('|') }:
                 parseRow actual, index
@@ -91,12 +93,23 @@ class TemplateImporter {
         mode = JS
     }
 
-    private void startNewRow(int index) {
-        log.debug "Creating new template row at line ${index + 1}"
+    private void startNewRow(int index, String line) {
+        def cssClass = stripRowDashes(line)
+        log.debug "Creating new template row with classs ${cssClass} at line ${index + 1}"
         mode = ROWS
-        currentRow = new TemplateRowDTO()
+        currentRow = new TemplateRowDTO(cssClass: cssClass)
         template.rows += currentRow
         currRowNavigation = 0
+    }
+
+    private static String stripRowDashes(String line) {
+        while (line.startsWith('-')) {
+            line = line.substring(1)
+        }
+        while (line.endsWith('-')) {
+            line = line.substring(0, line.length() - 1)
+        }
+        line.trim()
     }
 
     @SuppressWarnings("GroovyAssignabilityCheck")
@@ -105,11 +118,6 @@ class TemplateImporter {
         def matcher = (line =~ ROW_REGEX)
         switch (currRowNavigation) {
             case 1:
-                log.debug "Parsing row"
-                currentRow.cssClass = ((String) matcher[0][1]).trim()
-                log.debug "Setting css class = ${currentRow.cssClass} for row #${template.rows.size()}"
-                break
-            case 2:
                 log.debug "Parsing columns of row #${template.rows.size()}"
                 matcher.each {
                     TemplateColumnDTO column = new TemplateColumnDTO(cssClass: ((String) it[1]).trim())
