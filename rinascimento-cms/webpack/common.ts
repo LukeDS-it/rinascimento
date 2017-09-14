@@ -1,4 +1,6 @@
 const StringReplacePlugin = require('string-replace-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 import * as webpack from 'webpack';
 import * as path from 'path';
 
@@ -28,7 +30,21 @@ const commonConfig: webpack.Configuration = {
                 test: /\.html$/, loader: 'raw-loader', exclude: ['./src/main/webapp/index.html']
             },
             {
-                test: /\.(jpe?g|png|gif|svg|woff2?|ttf|eot)$/, use: [{loader: 'file-loader?name=resources/admin/[name].[ext]'}]
+                test: /index\.html/,
+                loader: StringReplacePlugin.replace({
+                    replacements: [
+                        {
+                            pattern: /spinner\.gif/,
+                            replacement: function () {
+                                return '/resources/admin/spinner.gif';
+                            }
+                        }
+                    ]
+                })
+            },
+            {
+                test: /\.(jpe?g|png|gif|svg|woff2?|ttf|eot)$/,
+                use: [{loader: 'file-loader?name=resources/admin/[name].[ext]'}]
             },
             {
                 test: /\.scss/,
@@ -57,7 +73,8 @@ const commonConfig: webpack.Configuration = {
             $: 'jquery',
             jQuery: 'jquery'
         }),
-        new StringReplacePlugin()
+        new StringReplacePlugin(),
+        new CopyWebpackPlugin([{from: 'src/main/webapp/spinner.gif', to: 'resources/admin/spinner.gif'}])
     ]
 };
 

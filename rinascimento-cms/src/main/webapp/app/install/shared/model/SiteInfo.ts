@@ -4,6 +4,6 @@ export class SiteInfo {
     analytics: string;
     clientId: string;
     recaptchaSecret: string;
-    recaprchaSiteKey: string;
-    keywords: Array<string>;
+    recaprchaKey: string;
+    keywords: Array<string> = [];
 }

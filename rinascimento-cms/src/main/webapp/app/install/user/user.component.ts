@@ -15,6 +15,6 @@ export class UserComponent {
     }
 
     doWork() {
-        this.router.navigate([Constants.ROUTE_STEP_4]);
+        this.router.navigate([Constants.ROUTE_STEP_5]);
     }
 }

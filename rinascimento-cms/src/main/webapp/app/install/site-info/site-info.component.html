@@ -20,47 +20,70 @@
     <div class="form-group row">
         <label class="col-sm-2 col-form-label" for="description">Website description</label>
         <div class="col-sm-10">
-            <input class="form-control form-control-sm" id="description" name="description" [(ngModel)]="siteInfo.description" required/>
+            <input class="form-control form-control-sm" id="description" name="description"
+                   [(ngModel)]="siteInfo.description" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="keywords">Site keywords</label>
+        <div class="col-sm-10">
+            <input id="keywords" name="keywords" class="form-control form-control-sm"/>
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-2 col-form-label" for="analytics">Google analytics key</label>
         <div class="col-sm-10">
-            <input class="form-control form-control-sm" id="analytics" name="analytics" [(ngModel)]="siteInfo.analytics"/>
+            <input class="form-control form-control-sm" id="analytics" name="analytics"
+                   [(ngModel)]="siteInfo.analytics"/>
+            <small class="form-text text-muted">
+                Example: UA-12345678-9
+            </small>
         </div>
-        <small class="form-text text-muted">
-            Example: UA-12345678-9
-        </small>
     </div>
     <div class="form-group row">
         <label class="col-sm-2 col-form-label" for="clientId">Google Client ID</label>
         <div class="col-sm-10">
-            <input class="form-control form-control-sm" id="clientId" name="clientId" [(ngModel)]="siteInfo.clientId" />
-        </div>
-        <small class="form-text text-muted">
-            This will allow your application to use Google Login systems. To set up a new client ID refer to the
-            official documentation at
-            <a href="https://developers.google.com/identity/sign-in/web/devconsole-project">
-                https://developers.google.com/identity/sign-in/web/devconsole-project
-            </a>
-        </small>
-    </div>
-    <div class="form-group row">
-        <label class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <input class="form-control form-control-sm" />
+            <input class="form-control form-control-sm" id="clientId" name="clientId" [(ngModel)]="siteInfo.clientId"/>
+            <small class="form-text text-muted">
+                This will allow your application to use Google Login systems. To set up a new client ID refer to the
+                official documentation at
+                <a href="https://developers.google.com/identity/sign-in/web/devconsole-project">
+                    https://developers.google.com/identity/sign-in/web/devconsole-project
+                </a>
+            </small>
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2 col-form-label"></label>
+        <label class="col-sm-2 col-form-label" for="recaptchaSecret">Recaptcha secret key</label>
         <div class="col-sm-10">
-            <input class="form-control form-control-sm" />
+            <input class="form-control form-control-sm" id="recaptchaSecret" name="recaptchaSecret"
+                   [(ngModel)]="siteInfo.recaptchaSecret"/>
+            <small class="form-text text-muted">
+                This will allow your application to use Recaptcha. Sign up to
+                <a href="https://www.google.com/recaptcha">
+                    https://www.google.com/recaptcha
+                </a>
+                to get your key. We won't share this key with any other website/third party
+            </small>
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2 col-form-label"></label>
+        <label class="col-sm-2 col-form-label" for="recaptchaKey">Recaptcha site key</label>
         <div class="col-sm-10">
-            <input class="form-control form-control-sm" />
+            <input class="form-control form-control-sm" id="recaptchaKey" name="recaptchaKey"
+                   [(ngModel)]="siteInfo.recaprchaKey"/>
+            <small class="form-text text-muted">
+                This will allow your application to use Recaptcha. Sign up to
+                <a href="https://www.google.com/recaptcha">
+                    https://www.google.com/recaptcha
+                </a>
+                to get your key. We won't share this key with any other website/third party
+            </small>
         </div>
+    </div>
+    <div class="text-center">
+        <button type="submit" class="btn btn-warning btn-lg">
+            Save information
+        </button>
     </div>
 </form>

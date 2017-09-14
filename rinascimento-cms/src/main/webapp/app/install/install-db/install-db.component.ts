@@ -15,6 +15,6 @@ export class InstallDbComponent {
     }
 
     doWork() {
-        this.router.navigate([Constants.ROUTE_STEP_5]);
+        this.router.navigate([Constants.ROUTE_STEP_3]);
     }
 }

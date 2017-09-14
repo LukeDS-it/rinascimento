@@ -12,6 +12,7 @@ import {SiteInfoComponent} from './site-info/site-info.component';
 import {DoneComponent} from './done/done.component';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {RlTagInputModule} from 'angular2-tag-input/dist';
 
 @NgModule({
     declarations: [
@@ -24,6 +25,7 @@ import {FormsModule} from '@angular/forms';
         DoneComponent
     ],
     imports: [
+        RlTagInputModule,
         BrowserModule,
         ComponentsModule,
         CommonModule,
