@@ -37,7 +37,7 @@ class MultiTenancyUtils {
     }
 
     String getTenantTemplateDir(String url) {
-        getTenantRootDir(url) + "/" + PATH_TEMPLATES + "/"
+        getTenantRootDirByUrl(url) + "/" + PATH_TEMPLATES + "/"
     }
 
     String getTenantResourcePath(String url, String resource) {
@@ -50,11 +50,15 @@ class MultiTenancyUtils {
     }
 
     String getTenantRootDir() {
-        getTenantRootDir(resolver.resolveCurrentTenantIdentifier())
+        getTenantRootDirByTenant(resolver.resolveCurrentTenantIdentifier())
     }
 
-    String getTenantRootDir(String url) {
+    String getTenantRootDirByUrl(String url) {
         intersectProperties.filePath + tenantToPath(getTenant(url))
+    }
+
+    String getTenantRootDirByTenant(String tenant) {
+        intersectProperties.filePath + tenantToPath(tenant)
     }
 
     private static String tenantToPath(String tenant) {

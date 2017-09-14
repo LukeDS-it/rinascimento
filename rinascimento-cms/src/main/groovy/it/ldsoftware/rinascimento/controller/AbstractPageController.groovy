@@ -32,13 +32,13 @@ class AbstractPageController {
         def page = pageService.findByAddress address
         if (!page)
             throw new PageNotFoundException(address)
-        page
+        return page
     }
 
     String serveStaticPage(String pageResource) {
         def resource = getClass().getClassLoader().getResource(pageResource)
         if (resource)
-            resource.text
+            return resource.text
         throw new PageNotFoundException("pageResource")
     }
 
