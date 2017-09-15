@@ -1,16 +1,10 @@
 package it.ldsoftware.rinascimento.util
 
 import groovy.util.logging.Slf4j
-import it.ldsoftware.rinascimento.view.template.TemplateColumnDTO
-import it.ldsoftware.rinascimento.view.template.TemplateDTO
-import it.ldsoftware.rinascimento.view.template.TemplateRowDTO
-import it.ldsoftware.rinascimento.view.template.TemplateWidgetDTO
-
-import static it.ldsoftware.rinascimento.util.TemplateImporter.ParsingMode.*
 
 @Slf4j
 class TemplateImporter {
-
+/*
     def static final HEADER_REGEX = / *(.*) \((.*)\) by (.*)/,
                      ROW_REGEX = /\| +([\w-_ ]+)(?:\((.*?)\))?/
 
@@ -171,5 +165,5 @@ class TemplateImporter {
     enum ParsingMode {
         CSS, JS, ROWS, NONE
     }
-
+*/
 }

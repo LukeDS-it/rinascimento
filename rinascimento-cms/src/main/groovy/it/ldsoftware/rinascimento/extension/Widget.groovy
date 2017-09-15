@@ -45,6 +45,8 @@ abstract class Widget {
         switch (name) {
             case 'requestParams':
                 return request.getParameterMap()
+            case 'mkp':
+                return builder.mkp
             default:
                 return null
         }

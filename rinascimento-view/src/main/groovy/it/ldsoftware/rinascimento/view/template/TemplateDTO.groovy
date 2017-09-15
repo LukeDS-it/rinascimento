@@ -6,7 +6,8 @@ import it.ldsoftware.primavera.presentation.base.BaseDTO
  * This class represents a page template.
  * <p>
  *     A template must visually represent the skeleton of the page, and it can be divided in
- *     rows and columns, represented by {@link TemplateRowDTO} and {@link TemplateColumnDTO}.
+ *     chunks. Each chunk can either be a widget or a container of more chunks.
+ *     See {@link ChunkDTO}'s documentation to understand what a chunk is.
  * </p>
  * <p>
  *     The template also contains references to the css and js that are used to visually style
@@ -24,14 +25,6 @@ class TemplateDTO extends BaseDTO {
 
     Set<String> css = [], js = []
 
-    List<TemplateRowDTO> rows = new ArrayList<>()
-
-    void close() {
-        rows.remove(rows.size() - 1)
-    }
-
-    TemplateRowDTO getAt(int i) {
-        rows[i]
-    }
+    List<ChunkDTO> chunks = []
 
 }
