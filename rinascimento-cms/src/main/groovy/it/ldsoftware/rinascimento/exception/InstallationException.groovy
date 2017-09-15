@@ -6,8 +6,8 @@ class InstallationException extends RuntimeException {
         super("Insallation error: ${message}")
     }
 
-    InstallationException(Throwable t) {
-        super("Generic installation error", t)
+    InstallationException(String s, Throwable t) {
+        super(s, t)
     }
 
 }
