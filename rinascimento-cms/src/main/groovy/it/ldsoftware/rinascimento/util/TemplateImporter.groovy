@@ -1,40 +1,55 @@
 package it.ldsoftware.rinascimento.util
 
 import groovy.util.logging.Slf4j
+import it.ldsoftware.rinascimento.view.template.ChunkDTO
+import it.ldsoftware.rinascimento.view.template.TemplateDTO
 
+/**
+ * Utility class to import templates created with the easy template notation (ezt).
+ *
+ */
 @Slf4j
 class TemplateImporter {
-/*
-    def static final HEADER_REGEX = / *(.*) \((.*)\) by (.*)/,
-                     ROW_REGEX = /\| +([\w-_ ]+)(?:\((.*?)\))?/
 
-    int currRowNavigation
+    def static final HEADER_REGEX = / *(.*) \((.*)\) by (.*)/
+    def static final NONE = 0, CSS = 1, JS = 2, CHUNKS = 3
+
+    def static final IS_CHUNK = { it.startsWith('|') }, IS_START_CHUNK = { it.startsWith('-') }
+
+    static {
+        String.metaClass.stripRowDashes = {
+            while (delegate.startsWith('-')) {
+                delegate = delegate.substring(1)
+            }
+            while (delegate.endsWith('-')) {
+                delegate = delegate.substring(0, delegate.length() - 1)
+            }
+            delegate.trim()
+        }
+    }
+
+    def mode = NONE
 
     TemplateDTO template
-    TemplateRowDTO currentRow
-    ParsingMode mode = NONE
+    int currChunk, currLevel
 
-    TemplateDTO importTemplateFile(String file) {
-        importTemplate(new File(file))
+    static TemplateDTO importTemplate(String text) {
+        def importer = new TemplateImporter()
+        importer.importTemplateInternal(text)
     }
 
-    TemplateDTO importTemplate(File file) {
-        importTemplate(file.text)
+    private TemplateImporter() {
+
     }
 
-    TemplateDTO importTemplate(String text) {
-
+    private TemplateDTO importTemplateInternal(String text) {
         text.eachLine { line, index ->
             log.debug "Parsing line number ${index + 1}:\n${line}"
-
             if (index == 0)
                 initTemplate line
             else
                 parseLine line, index
         }
-
-        template.close()
-
         template
     }
 
@@ -58,11 +73,11 @@ class TemplateImporter {
             case 'js:':
                 startJsParsing index
                 break
-            case { line.startsWith('-') }:
-                startNewRow index, actual
+            case IS_START_CHUNK:
+                startChunk index, actual
                 break
-            case { line.startsWith('|') }:
-                parseRow actual, index
+            case IS_CHUNK:
+                parseChunk index, actual
                 break
             case '':
                 doNothing index
@@ -75,17 +90,70 @@ class TemplateImporter {
 
     private void startCssParsing(int index) {
         log.debug "Found custom css definitions starting from line ${index + 1}"
-        if (mode == ROWS)
-            throw new ParsingException("Found CSS declaration in the middle of a row at line ${index + 1}")
+        if (mode == CHUNKS)
+            throw new ParsingException("Found CSS declaration in the middle of a chunk at line ${index + 1}")
         mode = CSS
     }
 
     private void startJsParsing(int index) {
         log.debug "Found custom js definitions starting from line ${index + 1}"
-        if (mode == ROWS)
-            throw new ParsingException("Found CSS declaration in the middle of a row at line ${index + 1}")
+        if (mode == CHUNKS)
+            throw new ParsingException("Found CSS declaration in the middle of a chunk at line ${index + 1}")
         mode = JS
     }
+
+    private void startChunk(int index, String line) {
+        if (mode != CHUNKS) {
+            log.debug "Found template start at line $index"
+            mode = CHUNKS
+        }
+        def chunk = new ChunkDTO()
+        template.chunks.add chunk
+
+        String details = line.stripRowDashes()
+
+        switch (details) {
+            case {details.contains(',')}:
+                chunk.type = details.split(/,/)[0]
+                chunk.cssClass = details.split(/,/)[1]
+                break
+            default:
+                chunk.cssClass = details
+                break
+        }
+    }
+
+    private void parseChunk(int index, String line) {
+        log.debug "Parsing chunk at linke $index"
+    }
+
+    private static void doNothing(int index) {
+        log.debug "Encountered blank line at ${index + 1}"
+    }
+
+    private void processLineAsResource(String line, int index) {
+        log.debug "Processing resource line..."
+        switch (mode) {
+            case CSS:
+                log.debug "Adding a custom css (${line})"
+                template.css += line
+                break
+            case JS:
+                log.debug "Adding a custom js (${line})"
+                template.js += line
+                break
+            case NONE:
+                doNothing index
+                break
+            case CHUNKS:
+                log.error "I was looking for a row but I found something else at line ${index + 1}"
+                throw new ParsingException("Unexpected row definition at line ${index + 1}")
+                break
+        }
+    }
+/*
+
+
 
     private void startNewRow(int index, String line) {
         def cssClass = stripRowDashes(line)
@@ -96,20 +164,11 @@ class TemplateImporter {
         currRowNavigation = 0
     }
 
-    private static String stripRowDashes(String line) {
-        while (line.startsWith('-')) {
-            line = line.substring(1)
-        }
-        while (line.endsWith('-')) {
-            line = line.substring(0, line.length() - 1)
-        }
-        line.trim()
-    }
 
     @SuppressWarnings("GroovyAssignabilityCheck")
     private void parseRow(String line, int index) {
         currRowNavigation++
-        def matcher = (line =~ ROW_REGEX)
+        def matcher = (line =~ NESTED_CHUNK_REGEX)
         switch (currRowNavigation) {
             case 1:
                 log.debug "Parsing columns of row #${template.rows.size()}"
@@ -137,33 +196,5 @@ class TemplateImporter {
         }
     }
 
-    private static void doNothing(int index) {
-        log.debug "Encountered blank line at ${index + 1}"
-    }
-
-    private void processLineAsResource(String line, int index) {
-        log.debug "Processing resource line..."
-        switch (mode) {
-            case CSS:
-                log.debug "Adding a custom css (${line})"
-                template.css += line
-                break
-            case JS:
-                log.debug "Adding a custom js (${line})"
-                template.js += line
-                break
-            case NONE:
-                doNothing index
-                break
-            case ROWS:
-                log.error "I was looking for a row but I found something else at line ${index + 1}"
-                throw new ParsingException("Unexpected row definition at line ${index + 1}")
-                break
-        }
-    }
-
-    enum ParsingMode {
-        CSS, JS, ROWS, NONE
-    }
 */
 }
