@@ -1,6 +1,7 @@
 package it.ldsoftware.rinascimento.service
 
 import groovy.util.logging.Slf4j
+import it.ldsoftware.primavera.dal.people.UserDAL
 import it.ldsoftware.rinascimento.exception.DatabaseCreationException
 import it.ldsoftware.rinascimento.exception.DirectoryCreationException
 import it.ldsoftware.rinascimento.exception.TenantExistingException
@@ -8,13 +9,21 @@ import it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils
 import it.ldsoftware.rinascimento.multitenancy.TenantResolver
 import it.ldsoftware.rinascimento.view.install.DatabaseConfig
 import org.hibernate.boot.MetadataSources
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder
 import org.hibernate.boot.spi.MetadataImplementor
+import org.hibernate.cfg.Environment
 import org.hibernate.tool.hbm2ddl.SchemaExport
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
+import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
+import org.springframework.core.type.filter.AnnotationTypeFilter
 import org.springframework.stereotype.Service
 
+import javax.persistence.Entity
 import javax.persistence.EntityManager
+import java.sql.DriverManager
 
 @Slf4j
 @Service
@@ -28,6 +37,12 @@ class InstallationService {
 
     @Autowired
     EntityManager entityManager
+
+    @Autowired
+    ApplicationContext context
+
+    @Autowired
+    UserDAL userDAL
 
     void mkdirs() {
         try {
@@ -75,34 +90,35 @@ class InstallationService {
                     + config.password ? "database.pass=${config.password}\n" : ""
                     + config.driverClass ? "database.driverClassName=${config.driverClass}\n" : "")
 
-//            def dbConf = new Configuration()
-//            dbConf.setProperty(Environment.SHOW_SQL, "true")
-//            dbConf.setProperty(Environment.HBM2DDL_AUTO, "create")
-//            dbConf.setProperty(Environment.URL, config.url)
-//
-//            if (config.username)
-//                dbConf.setProperty(Environment.USER, config.username)
-//            if (config.password)
-//                dbConf.setProperty(Environment.PASS, config.password)
-//
-//            dbConf.setProperty(Environment.DRIVER, properties.determineDriverClassName())
-
-            def metadata = new MetadataSources()
+            def conn = DriverManager.getConnection(config.url, config.username, config.password)
 
 
-            def export = new SchemaExport(metadata.buildMetadata() as MetadataImplementor)
+            def dialect = config.dialect ?: "org.hibernate.dialect.H2Dialect" // FIXME programatically get it
+
+            def metadata = new MetadataSources(
+                    new StandardServiceRegistryBuilder()
+                        .applySetting(Environment.DRIVER, properties.determineDriverClassName())
+                        .applySetting(Environment.DIALECT, dialect)
+                        .build()
+            )
+
+            def scanner = new ClassPathScanningCandidateComponentProvider(true)
+            scanner.addIncludeFilter(new AnnotationTypeFilter(Entity))
+
+            MultiTenancyUtils.getPackagesToScan(context).collect {
+                scanner.findCandidateComponents(it)
+            }.flatten().each { it ->
+                metadata.addAnnotatedClass(Class.forName(((BeanDefinition)it).getBeanClassName()))
+            }
+
+            def export = new SchemaExport(metadata.buildMetadata() as MetadataImplementor, conn)
 
             log.info "Creating DDL for tenant ${resolver.resolveCurrentTenantIdentifier()}"
 
             export.create(true, true)
-
-            addBasicData()
         } catch (Exception e) {
             throw new DatabaseCreationException(e)
         }
     }
 
-    private void addBasicData() {
-
-    }
 }

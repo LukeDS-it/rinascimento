@@ -1,9 +1,9 @@
 package it.ldsoftware.rinascimento.config
 
+import it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext
@@ -45,7 +45,7 @@ class MultiTenancyConfig {
     LocalContainerEntityManagerFactoryBean entityManagerFactory(ApplicationContext context) {
         LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean()
         bean.setDataSource(dataSource)
-        bean.setPackagesToScan(getPackagesToScan(context))
+        bean.setPackagesToScan(MultiTenancyUtils.getPackagesToScan(context))
         bean.setJpaVendorAdapter(jpaVendorAdapter())
 
         Map<String, Object> jpaProperties = new HashMap<>()
@@ -55,13 +55,6 @@ class MultiTenancyConfig {
         jpaProperties.putAll(this.jpaProperties.getHibernateProperties(dataSource))
         bean.setJpaPropertyMap(jpaProperties)
         bean
-    }
-
-    private static String[] getPackagesToScan(ApplicationContext context) {
-        context.getBeanNamesForAnnotation(EntityScan.class)
-                .collect { context.findAnnotationOnBean it, EntityScan.class }
-                .collect { it.basePackages() }
-                .flatten()
     }
 
 }

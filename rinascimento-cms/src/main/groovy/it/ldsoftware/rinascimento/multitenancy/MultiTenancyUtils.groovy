@@ -2,7 +2,9 @@ package it.ldsoftware.rinascimento.multitenancy
 
 import it.ldsoftware.rinascimento.config.RinascimentoProperties
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 
 import java.util.regex.Matcher
@@ -64,6 +66,13 @@ class MultiTenancyUtils {
 
     private static String tenantToPath(String tenant) {
         tenant.split("\\.").reverse().join("/")
+    }
+
+    static String[] getPackagesToScan(ApplicationContext context) {
+        context.getBeanNamesForAnnotation(EntityScan.class)
+                .collect { context.findAnnotationOnBean it, EntityScan.class }
+                .collect { it.basePackages() }
+                .flatten()
     }
 
 }
