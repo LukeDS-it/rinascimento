@@ -20,7 +20,9 @@ class ContentWidget extends Widget {
 
     @Override
     void buildContent() {
-        builder.content(class: params.css, page.content)
+        builder.content(class: params.css) {
+            mkp.yieldUnescaped(page.content)
+        }
     }
 
     @Override

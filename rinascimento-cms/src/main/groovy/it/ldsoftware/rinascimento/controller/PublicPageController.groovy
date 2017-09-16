@@ -2,10 +2,8 @@ package it.ldsoftware.rinascimento.controller
 
 import it.ldsoftware.rinascimento.util.PageMode
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
-import it.ldsoftware.rinascimento.view.template.TemplateColumnDTO
+import it.ldsoftware.rinascimento.view.template.ChunkDTO
 import it.ldsoftware.rinascimento.view.template.TemplateDTO
-import it.ldsoftware.rinascimento.view.template.TemplateRowDTO
-import it.ldsoftware.rinascimento.view.template.TemplateWidgetDTO
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,7 +37,7 @@ class PublicPageController extends AbstractPageController {
                 title: 'Hello world',
                 meta: ['hello': 'world'],
                 template: defaultTemplate(),
-                content: 'This page is working.'
+                content: '<h1>This page is working.</h1>'
         )
         pageBuilder.buildPage page, locale, request, PageMode.VIEW
     }
@@ -49,8 +47,31 @@ class PublicPageController extends AbstractPageController {
                 name: 'default',
                 css: ['https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', 'css/default.css'],
                 js: ['https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js', 'js/app.js'],
-                rows: [
-                        new TemplateRowDTO(cssClass: 'row',
+                chunks: [
+                        new ChunkDTO(
+                                cssClass: 'container-fluid',
+                                chunks: [
+                                        new ChunkDTO(
+                                                cssClass: 'row',
+                                                chunks: [
+                                                        new ChunkDTO(cssClass: 'col-md-3'),
+                                                        new ChunkDTO(cssClass: 'col-md-6',
+                                                                chunks: [
+                                                                        new ChunkDTO(widget: 'ContentWidget.groovy', params: '{}'),
+                                                                        new ChunkDTO(widget: 'TestWidget.groovy', params: '{"text": "Hello"}')
+                                                                ]
+                                                        ),
+                                                        new ChunkDTO(cssClass: 'col-md-3')
+                                                ]
+                                        )
+                                ]
+                        )
+                ]
+        )
+    }
+
+    /*
+    new TemplateRowDTO(cssClass: 'row',
                                 columns: [
                                         new TemplateColumnDTO(cssClass: 'col-md-3'),
                                         new TemplateColumnDTO(cssClass: 'col-md-6', widgets: [
@@ -61,8 +82,6 @@ class PublicPageController extends AbstractPageController {
 
                                 ]
                         )
-                ]
-        )
-    }
+     */
 
 }

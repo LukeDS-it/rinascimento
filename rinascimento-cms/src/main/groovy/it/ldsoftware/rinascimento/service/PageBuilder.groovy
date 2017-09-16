@@ -5,12 +5,14 @@ import it.ldsoftware.rinascimento.extension.Widget
 import it.ldsoftware.rinascimento.util.Constants
 import it.ldsoftware.rinascimento.util.PageMode
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
+import it.ldsoftware.rinascimento.view.template.ChunkDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 import javax.servlet.http.HttpServletRequest
 
-import static it.ldsoftware.rinascimento.util.PathUtils.*
+import static it.ldsoftware.rinascimento.util.PathUtils.resourcePath
+import static it.ldsoftware.rinascimento.util.PathUtils.widgetResourcePath
 
 @Service
 class PageBuilder {
@@ -24,7 +26,9 @@ class PageBuilder {
         def sb = new StringWriter().append(Constants.HTML_START)
         MarkupBuilder builder = getBuilder(sb)
 
-        loadExtensions page, locale, request, builder
+        page.template.chunks.each {
+            initChunk it, page, locale, request, builder
+        }
 
         builder.html(lang: page.language ?: 'en') {
             head builder, page
@@ -74,16 +78,8 @@ class PageBuilder {
     private static body(MarkupBuilder builder, WebPageDTO page) {
         builder.body {
 
-            page.template.rows.each { row ->
-                div(class: row.cssClass) {
-                    row.columns.each { col ->
-                        div(class: col.cssClass, '') {
-                            col.widgets.each {
-                                it.extension.buildContent()
-                            }
-                        }
-                    }
-                }
+            page.template.chunks.each {
+                renderChunk it, builder
             }
 
             page.template.js?.each {
@@ -100,14 +96,26 @@ class PageBuilder {
         }
     }
 
-    private void loadExtensions(WebPageDTO page, Locale locale, HttpServletRequest request, MarkupBuilder builder) {
-        page.template.rows.each {
-            it.columns.each {
-                it.widgets.each {
-                    Widget extension = loader.getExtension(it.script, page, locale, request, builder, it.params)
-                    page.wCss += extension.getCss()
-                    page.wJs += extension.getJs()
-                    it.extension = extension
+    private def initChunk(ChunkDTO chunk, WebPageDTO page, Locale locale, HttpServletRequest request, MarkupBuilder builder) {
+        if (chunk.widget){
+            Widget extension = loader.getExtension(chunk.widget as String, page, locale, request, builder, chunk.params as String)
+            page.wCss += extension.getCss()
+            page.wJs += extension.getJs()
+            chunk.widget = extension
+        } else {
+            chunk.chunks.each {
+                initChunk(it, page, locale, request, builder)
+            }
+        }
+    }
+
+    private static renderChunk(ChunkDTO chunk, MarkupBuilder builder) {
+        if (chunk.widget) {
+            (chunk.widget as Widget).buildContent()
+        } else {
+            builder."${chunk.type}"(class: chunk.cssClass, '') {
+                chunk.chunks.each {
+                    renderChunk it, builder
                 }
             }
         }

@@ -22,6 +22,6 @@ public class Template extends BaseEntity {
 
     @OrderBy("order")
     @OneToMany(mappedBy = "template", fetch = EAGER, cascade = CascadeType.ALL)
-    private Set<TemplateRow> rows;
+    private Set<Chunk> chunks;
 
 }

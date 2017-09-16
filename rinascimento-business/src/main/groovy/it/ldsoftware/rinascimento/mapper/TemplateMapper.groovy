@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 class TemplateMapper extends BaseMapper<Template, TemplateDTO> {
 
     @Autowired
-    private TemplateRowMapper rowMapper
+    private ChunkMapper chunkMapper
 
     @Override
     Template getModelInstance(TemplateDTO dto) {
@@ -20,10 +20,10 @@ class TemplateMapper extends BaseMapper<Template, TemplateDTO> {
                 name: dto.name,
                 author: dto.author,
                 templateVersion: dto.templateVersion,
-                rows: dto.rows.collect { rowMapper.getModelInstance(it) }
+                chunks: dto.chunks.collect { chunkMapper.getModelInstance(it) }
         )
         t.setResources(collectResources(dto, t))
-        t.rows.eachWithIndex { it, ix ->
+        t.chunks.eachWithIndex { it, ix ->
             it.setTemplate(t)
             it.setOrder(ix)
         }
@@ -38,7 +38,7 @@ class TemplateMapper extends BaseMapper<Template, TemplateDTO> {
                 templateVersion: template.templateVersion,
                 css: getResources(template, ResourceType.CSS),
                 js: getResources(template, ResourceType.JS),
-                rows: template.rows.collect { rowMapper.getViewInstance(it) }
+                chunks: template.chunks.collect { chunkMapper.getViewInstance(it) }
         )
     }
 
