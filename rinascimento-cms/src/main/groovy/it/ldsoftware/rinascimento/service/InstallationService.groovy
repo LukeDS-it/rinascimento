@@ -7,8 +7,8 @@ import it.ldsoftware.rinascimento.exception.TenantExistingException
 import it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils
 import it.ldsoftware.rinascimento.multitenancy.TenantResolver
 import it.ldsoftware.rinascimento.view.install.DatabaseConfig
-import org.hibernate.cfg.Configuration
-import org.hibernate.cfg.Environment
+import org.hibernate.boot.MetadataSources
+import org.hibernate.boot.spi.MetadataImplementor
 import org.hibernate.tool.hbm2ddl.SchemaExport
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
@@ -45,7 +45,7 @@ class InstallationService {
 
             boolean success = dirs
                     .collect { new File(it).mkdirs() }
-                    .findAll { !it }
+                    .inject { acc, val -> acc && val }
 
             if (!success)
                 throw new DirectoryCreationException("Could not create directories ${dirs}, please check permissions")
@@ -69,21 +69,28 @@ class InstallationService {
 
             propFile.createNewFile()
 
-            propFile.text = ""
-            +config.url ? "database.url=${config.url}\n" : ""
-            +config.username ? "database.user=${config.username}\n" : ""
-            +config.password ? "database.pass=${config.password}\n" : ""
-            +config.driverClass ? "database.driverClassName=${config.driverClass}\n" : ""
+            propFile.setText(""
+                    + config.url ? "database.url=${config.url}\n" : ""
+                    + config.username ? "database.user=${config.username}\n" : ""
+                    + config.password ? "database.pass=${config.password}\n" : ""
+                    + config.driverClass ? "database.driverClassName=${config.driverClass}\n" : "")
 
-            def configuration = new Configuration()
-            config.setProperty(Environment.SHOW_SQL, true)
-            config.setProperty(Environment.HBM2DDL_AUTO, "create")
-            config.setUrl(config.url)
-            config.setUsername(config.username)
-            config.setPassword(config.password)
-            config.setDriverClass(properties.determineDriverClassName())
+//            def dbConf = new Configuration()
+//            dbConf.setProperty(Environment.SHOW_SQL, "true")
+//            dbConf.setProperty(Environment.HBM2DDL_AUTO, "create")
+//            dbConf.setProperty(Environment.URL, config.url)
+//
+//            if (config.username)
+//                dbConf.setProperty(Environment.USER, config.username)
+//            if (config.password)
+//                dbConf.setProperty(Environment.PASS, config.password)
+//
+//            dbConf.setProperty(Environment.DRIVER, properties.determineDriverClassName())
 
-            def export = new SchemaExport(configuration)
+            def metadata = new MetadataSources()
+
+
+            def export = new SchemaExport(metadata.buildMetadata() as MetadataImplementor)
 
             log.info "Creating DDL for tenant ${resolver.resolveCurrentTenantIdentifier()}"
 

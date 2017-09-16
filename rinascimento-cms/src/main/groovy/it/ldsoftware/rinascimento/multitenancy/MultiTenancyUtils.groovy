@@ -13,7 +13,8 @@ import static it.ldsoftware.rinascimento.util.PathConstants.*
 @EnableConfigurationProperties(RinascimentoProperties.class)
 class MultiTenancyUtils {
 
-    static final String DEFAULT_ID = "default", SCOPE_REQUEST = "", CURRENT_TENANT = "currentTenant"
+    static final String DEFAULT_ID = "default", SCOPE_REQUEST = "", CURRENT_TENANT = "currentTenant",
+        ROOT_DIR = "_ROOT"
 
     @Autowired
     private RinascimentoProperties intersectProperties
@@ -21,27 +22,27 @@ class MultiTenancyUtils {
     private TenantResolver resolver
 
     String getTenantProperties() {
-        getTenantRootDir() + "/" + PATH_GUEST_PROPERTIES
+        getTenantRootDir() + PATH_GUEST_PROPERTIES
     }
 
     String getTenantTemplateDir() {
-        getTenantRootDir() + "/" + PATH_TEMPLATES + "/"
+        getTenantRootDir() + PATH_TEMPLATES + "/"
     }
 
     String getTenantExtensionDir() {
-        getTenantRootDir() + "/" + PATH_EXTENSIONS + "/"
+        getTenantRootDir() + PATH_EXTENSIONS + "/"
     }
 
     String getTenantResourceDir() {
-        getTenantRootDir() + "/" + PATH_RESOURCES + "/"
+        getTenantRootDir() + PATH_RESOURCES + "/"
     }
 
     String getTenantTemplateDir(String url) {
-        getTenantRootDirByUrl(url) + "/" + PATH_TEMPLATES + "/"
+        getTenantRootDirByUrl(url) + PATH_TEMPLATES + "/"
     }
 
     String getTenantResourcePath(String url, String resource) {
-        return getTenantTemplateDir(url) + resource
+        return getTenantTemplateDir(url) + (resource.startsWith('/') ? '' : '/') + resource
     }
 
     @SuppressWarnings("GroovyAssignabilityCheck")
@@ -54,21 +55,15 @@ class MultiTenancyUtils {
     }
 
     String getTenantRootDirByUrl(String url) {
-        intersectProperties.filePath + tenantToPath(getTenant(url))
+        intersectProperties.filePath + tenantToPath(getTenant(url)) + PATH_GUEST_ROOT
     }
 
     String getTenantRootDirByTenant(String tenant) {
-        intersectProperties.filePath + tenantToPath(tenant)
+        intersectProperties.filePath + tenantToPath(tenant) + PATH_GUEST_ROOT
     }
 
     private static String tenantToPath(String tenant) {
         tenant.split("\\.").reverse().join("/")
-//        String[] explosion = tenant.split("\\.")
-//        String inversion = ""
-//        for (String s : explosion) {
-//            inversion = "/" + s + inversion
-//        }
-//        return inversion
     }
 
 }
