@@ -2,6 +2,7 @@ package it.ldsoftware.rinascimento.util
 
 import groovy.util.logging.Slf4j
 import it.ldsoftware.rinascimento.view.template.ChunkDTO
+import it.ldsoftware.rinascimento.view.template.ChunkHolder
 import it.ldsoftware.rinascimento.view.template.TemplateDTO
 
 /**
@@ -11,27 +12,13 @@ import it.ldsoftware.rinascimento.view.template.TemplateDTO
 @Slf4j
 class TemplateImporter {
 
-    def static final HEADER_REGEX = / *(.*) \((.*)\) by (.*)/
     def static final NONE = 0, CSS = 1, JS = 2, CHUNKS = 3
 
     def static final IS_CHUNK = { it.startsWith('|') }, IS_START_CHUNK = { it.startsWith('-') }
 
-    static {
-        String.metaClass.stripRowDashes = {
-            while (delegate.startsWith('-')) {
-                delegate = delegate.substring(1)
-            }
-            while (delegate.endsWith('-')) {
-                delegate = delegate.substring(0, delegate.length() - 1)
-            }
-            delegate.trim()
-        }
-    }
-
     def mode = NONE
 
     TemplateDTO template
-    int currChunk, currLevel
 
     static TemplateDTO importTemplate(String text) {
         def importer = new TemplateImporter()
@@ -55,7 +42,7 @@ class TemplateImporter {
 
     @SuppressWarnings("GroovyAssignabilityCheck")
     private void initTemplate(String header) {
-        def finder = (header =~ HEADER_REGEX)
+        def finder = (header =~ / *(.*) \((.*)\) by (.*)/)
         template = new TemplateDTO(
                 name: finder[0][1],
                 templateVersion: finder[0][2],
@@ -64,9 +51,12 @@ class TemplateImporter {
         log.debug "Created template ${template.name}, version ${template.templateVersion} by ${template.author}"
     }
 
-    private void parseLine(String line, int index) {
+    private void parseLine(String line, int index, ChunkHolder level = template) {
         def actual = line.trim()
         switch (line) {
+            case ~/(?:\| *)*/:
+                doNothing index
+                break
             case 'css:':
                 startCssParsing index
                 break
@@ -74,13 +64,10 @@ class TemplateImporter {
                 startJsParsing index
                 break
             case IS_START_CHUNK:
-                startChunk index, actual
+                startChunk index, actual, level
                 break
             case IS_CHUNK:
-                parseChunk index, actual
-                break
-            case '':
-                doNothing index
+                parseChunk index, actual, level
                 break
             default:
                 processLineAsResource actual, index
@@ -102,29 +89,49 @@ class TemplateImporter {
         mode = JS
     }
 
-    private void startChunk(int index, String line) {
+    private void startChunk(int index, String line, ChunkHolder level) {
         if (mode != CHUNKS) {
             log.debug "Found template start at line $index"
             mode = CHUNKS
         }
-        def chunk = new ChunkDTO()
-        template.chunks.add chunk
 
-        String details = line.stripRowDashes()
+        def matcher = (line =~ /-+ *(?:([a-z]*), *)?([a-z\-0-9]*)? *-+/)
 
-        switch (details) {
-            case {details.contains(',')}:
-                chunk.type = details.split(/,/)[0]
-                chunk.cssClass = details.split(/,/)[1]
-                break
-            default:
-                chunk.cssClass = details
-                break
+        matcher.each {
+            def chunk = new ChunkDTO()
+            if (it[1])
+                chunk.type = it[1]
+            if (it[2])
+                chunk.cssClass = it[2]
+
+            level.chunks.add chunk
+            log.debug "Created new chunk"
         }
     }
 
-    private void parseChunk(int index, String line) {
-        log.debug "Parsing chunk at linke $index"
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    private void parseChunk(int index, String line, ChunkHolder level) {
+        line = line.substring(2, line.length() - 2)
+        def extensionMatcher = (line =~ /([\w_]+)(?:\((.*?)\))?/)
+        def startChunkMatcher = (line =~ /-+ *(?:([a-z]*), *)?([a-z\-0-9]*)? *-+/)
+        if (extensionMatcher && !startChunkMatcher && !line.startsWith("|")) {
+            log.debug "Found extensions at line $index"
+            extensionMatcher.eachWithIndex { entry, i ->
+                ChunkDTO chunk = level.chunks[i]
+                if (chunk.cssClass) {
+                    log.debug "Chunk has a css-class, treating as a widget container"
+                    chunk.chunks.add new ChunkDTO()
+                    chunk = chunk.chunks.last()
+                }
+
+                chunk.widget = "${entry[1]}.groovy"
+                chunk.params = entry[2]
+                log.debug "Added widget ${chunk.widget} to chunk #$i"
+            }
+        } else {
+            log.debug "Going down one level"
+            parseLine line, index, level.chunks.last()
+        }
     }
 
     private static void doNothing(int index) {

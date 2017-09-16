@@ -19,8 +19,7 @@ import it.ldsoftware.primavera.presentation.base.BaseDTO
  * </p>
  * @author Luca Di Stefano
  */
-class ChunkDTO extends BaseDTO {
+class ChunkDTO extends BaseDTO implements ChunkHolder {
     def widget, params
     String type = 'div', cssClass
-    List<ChunkDTO> chunks = []
 }

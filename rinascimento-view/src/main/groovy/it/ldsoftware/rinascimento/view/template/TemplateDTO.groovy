@@ -19,12 +19,10 @@ import it.ldsoftware.primavera.presentation.base.BaseDTO
  *
  * @author Luca Di Stefano
  */
-class TemplateDTO extends BaseDTO {
+class TemplateDTO extends BaseDTO implements ChunkHolder {
 
     String name, templateVersion, author
 
     Set<String> css = [], js = []
-
-    List<ChunkDTO> chunks = []
 
 }
