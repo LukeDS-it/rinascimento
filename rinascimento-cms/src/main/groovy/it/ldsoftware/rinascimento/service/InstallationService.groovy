@@ -1,124 +1,61 @@
 package it.ldsoftware.rinascimento.service
 
-import groovy.util.logging.Slf4j
-import it.ldsoftware.primavera.dal.people.UserDAL
+import it.ldsoftware.primavera.presentation.base.AppPropertyDTO
+import it.ldsoftware.primavera.presentation.people.UserVM
 import it.ldsoftware.rinascimento.exception.DatabaseCreationException
 import it.ldsoftware.rinascimento.exception.DirectoryCreationException
-import it.ldsoftware.rinascimento.exception.TenantExistingException
-import it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils
-import it.ldsoftware.rinascimento.multitenancy.TenantResolver
+import it.ldsoftware.rinascimento.exception.SiteConfigurationException
+import it.ldsoftware.rinascimento.exception.UserConfigurationException
 import it.ldsoftware.rinascimento.view.install.DatabaseConfig
-import org.hibernate.boot.MetadataSources
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder
-import org.hibernate.boot.spi.MetadataImplementor
-import org.hibernate.cfg.Environment
-import org.hibernate.tool.hbm2ddl.SchemaExport
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.config.BeanDefinition
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
-import org.springframework.context.ApplicationContext
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
-import org.springframework.core.type.filter.AnnotationTypeFilter
-import org.springframework.stereotype.Service
 
-import javax.persistence.Entity
-import javax.persistence.EntityManager
-import java.sql.DriverManager
+/**
+ * This service provides methods to configure a new instance of the CMS
+ *
+ * @author Luca Di Stefano
+ */
+interface InstallationService {
+    /**
+     * This function creates the basic directory structure of the CMS.
+     * <p>
+     *     The directory path will match the tenant's name, e.g. in case of tenant my.example.org, the base
+     *     path will be <code>${cms-base-path}/org/example/my/_ROOT</code>.
+     * </p>
+     *
+     * @throws DirectoryCreationException If something goes wrong the error will be wrapped in this exception
+     */
+    void mkdirs() throws DirectoryCreationException
 
-@Slf4j
-@Service
-class InstallationService {
+    /**
+     * This function writes the database configuration in the _ROOT/guest.properties file, then proceeds to create
+     * the DDL of the database in the coordinates it received.
+     *
+     * @param config the configuration of the database
+     * @throws DatabaseCreationException If something goes wrong the error will be wrapped in this exception
+     */
+    void installDatabase(DatabaseConfig config) throws DatabaseCreationException
 
-    @Autowired
-    MultiTenancyUtils utils
+    /**
+     * This function adds the default data that is necessary to the CMS, such as user roles, default templates, etc
+     *
+     * @throws SiteConfigurationException If something goes wrong the error will be wrapped in this exception
+     */
+    void addBaseData() throws SiteConfigurationException
 
-    @Autowired
-    TenantResolver resolver
+    /**
+     * This function configures the CMS properties in the database
+     *
+     * @param properties the properties received that need to be saved
+     * @throws SiteConfigurationException If something goes wrong the error will be wrapped in this exception
+     */
+    void configureWebsite(List<AppPropertyDTO> properties) throws SiteConfigurationException
 
-    @Autowired
-    EntityManager entityManager
+    /**
+     * This function creates the main administrator user for the CMS
+     *
+     * @param user the user data
+     * @throws UserConfigurationException If something goes wrong the error will be wrapped in this exception
+     */
+    void configureUser(UserVM user) throws UserConfigurationException
 
-    @Autowired
-    ApplicationContext context
-
-    @Autowired
-    UserDAL userDAL
-
-    void mkdirs() {
-        try {
-            def dirs = [
-                    utils.getTenantTemplateDir(),
-                    utils.getTenantExtensionDir(),
-                    utils.getTenantResourceDir()
-            ]
-
-            def file = new File(utils.getTenantRootDir())
-            if (file.exists())
-                throw new TenantExistingException(resolver.resolveCurrentTenantIdentifier())
-
-            file.mkdirs()
-
-            boolean success = dirs
-                    .collect { new File(it).mkdirs() }
-                    .inject { acc, val -> acc && val }
-
-            if (!success)
-                throw new DirectoryCreationException("Could not create directories ${dirs}, please check permissions")
-
-            def propFile = new File(utils.getTenantProperties())
-
-            if (!propFile.createNewFile())
-                throw new DirectoryCreationException("Could not create property file, please check permissions")
-        } catch (DirectoryCreationException rethrow) {
-            throw rethrow
-        } catch (Exception e) {
-            throw new DirectoryCreationException(e)
-        }
-    }
-
-    void installDatabase(DatabaseConfig config) {
-        try {
-            def properties = new DataSourceProperties(username: config.username, password: config.password, url: config.url)
-
-            def propFile = new File(utils.getTenantProperties())
-
-            propFile.createNewFile()
-
-            propFile.setText(""
-                    + config.url ? "database.url=${config.url}\n" : ""
-                    + config.username ? "database.user=${config.username}\n" : ""
-                    + config.password ? "database.pass=${config.password}\n" : ""
-                    + config.driverClass ? "database.driverClassName=${config.driverClass}\n" : "")
-
-            def conn = DriverManager.getConnection(config.url, config.username, config.password)
-
-
-            def dialect = config.dialect ?: "org.hibernate.dialect.H2Dialect" // FIXME programatically get it
-
-            def metadata = new MetadataSources(
-                    new StandardServiceRegistryBuilder()
-                        .applySetting(Environment.DRIVER, properties.determineDriverClassName())
-                        .applySetting(Environment.DIALECT, dialect)
-                        .build()
-            )
-
-            def scanner = new ClassPathScanningCandidateComponentProvider(true)
-            scanner.addIncludeFilter(new AnnotationTypeFilter(Entity))
-
-            MultiTenancyUtils.getPackagesToScan(context).collect {
-                scanner.findCandidateComponents(it)
-            }.flatten().each { it ->
-                metadata.addAnnotatedClass(Class.forName(((BeanDefinition)it).getBeanClassName()))
-            }
-
-            def export = new SchemaExport(metadata.buildMetadata() as MetadataImplementor, conn)
-
-            log.info "Creating DDL for tenant ${resolver.resolveCurrentTenantIdentifier()}"
-
-            export.create(true, true)
-        } catch (Exception e) {
-            throw new DatabaseCreationException(e)
-        }
-    }
-
+    void createHomePage()
 }

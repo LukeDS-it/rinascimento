@@ -18,5 +18,5 @@ repositories {
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.3.11'
-    compile 'it.ldsoftware:primavera-entities:1.0.0-RELEASE'
+    compile "it.ldsoftware:primavera-entities:${primavera_version}"
 }

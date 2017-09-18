@@ -1,9 +1,4 @@
 buildscript {
-    ext {
-        springBootVersion = '1.5.6.RELEASE'
-        queryDslVersion = '4.1.4'
-        h2Version = '1.4.196'
-    }
     repositories {
         mavenLocal()
         mavenCentral()
@@ -38,21 +33,23 @@ configurations {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile "org.codehaus.groovy:groovy-all:${groovy_version}"
 
-    compile 'it.ldsoftware:primavera-business:0.6.0-SNAPSHOT'
+    compile "it.ldsoftware:primavera-business:${primavera_version}"
 
-    compile "com.querydsl:querydsl-root:$queryDslVersion"
-    compile "com.querydsl:querydsl-jpa:$queryDslVersion"
-    compile "com.querydsl:querydsl-apt:$queryDslVersion"
+    compile "com.querydsl:querydsl-root:${queryDslVersion}"
+    compile "com.querydsl:querydsl-jpa:${queryDslVersion}"
+    compile "com.querydsl:querydsl-apt:${queryDslVersion}"
+    
+    compile "org.hibernate:hibernate-core:${hibernate_version}"
 
-    compile "org.projectlombok:lombok:1.16.18"
+    compile "org.projectlombok:lombok:${lombok_version}"
 
     compile project(':rinascimento-view')
 
     testCompile 'junit:junit:4.12'
-    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
-    testCompile "com.h2database:h2:$h2Version"
+    testCompile "org.springframework.boot:spring-boot-starter-test:${spring_boot_version}"
+    testCompile "com.h2database:h2:${h2Version}"
 }
 
 querydsl {
