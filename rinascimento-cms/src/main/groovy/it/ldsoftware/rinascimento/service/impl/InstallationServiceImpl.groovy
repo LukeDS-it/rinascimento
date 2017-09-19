@@ -3,6 +3,7 @@ package it.ldsoftware.rinascimento.service.impl
 import groovy.util.logging.Slf4j
 import it.ldsoftware.primavera.presentation.base.AppPropertyDTO
 import it.ldsoftware.primavera.presentation.people.UserVM
+import it.ldsoftware.primavera.presentation.security.RoleDTO
 import it.ldsoftware.primavera.services.interfaces.GroupService
 import it.ldsoftware.primavera.services.interfaces.PropertyService
 import it.ldsoftware.primavera.services.interfaces.RoleService
@@ -15,7 +16,6 @@ import it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils
 import it.ldsoftware.rinascimento.multitenancy.TenantResolver
 import it.ldsoftware.rinascimento.service.InstallationService
 import it.ldsoftware.rinascimento.service.TemplateService
-import it.ldsoftware.rinascimento.util.Constants
 import it.ldsoftware.rinascimento.util.TemplateImporter
 import it.ldsoftware.rinascimento.view.install.DatabaseConfig
 import org.hibernate.HibernateException
@@ -42,6 +42,9 @@ import javax.persistence.Entity
 import javax.persistence.EntityManager
 import java.sql.DriverManager
 import java.sql.SQLException
+
+import static it.ldsoftware.rinascimento.util.Constants.BASE_GROUPS
+import static it.ldsoftware.rinascimento.util.Constants.BASE_ROLES
 
 @Slf4j
 @Service
@@ -89,9 +92,7 @@ class InstallationServiceImpl implements InstallationService {
 
             file.mkdirs()
 
-            boolean success = dirs
-                    .collect { new File(it).mkdirs() }
-                    .inject { acc, val -> acc && val }
+            boolean success = dirs.every { new File(it).mkdirs() }
 
             if (!success)
                 throw new DirectoryCreationException("Could not create directories ${dirs}, please check permissions")
@@ -156,16 +157,16 @@ class InstallationServiceImpl implements InstallationService {
         }
     }
 
-    private Dialect determineDialect(DatabaseConfig config) {
+    private static Dialect determineDialect(DatabaseConfig config) {
         def conn = DriverManager.getConnection(config.url, config.username, config.password)
         def dialectFactory = new DialectFactoryImpl(dialectResolver: new StandardDialectResolver())
         Dialect d = dialectFactory.buildDialect([:], new DialectResolutionInfoSource() {
             @Override
             DialectResolutionInfo getDialectResolutionInfo() {
                 try {
-                    return new DatabaseMetaDataDialectResolutionInfoAdapter( conn.getMetaData() )
+                    return new DatabaseMetaDataDialectResolutionInfoAdapter(conn.getMetaData())
                 }
-                catch ( SQLException sqlException ) {
+                catch (SQLException sqlException) {
                     throw new HibernateException(
                             "Unable to access java.sql.DatabaseMetaData to determine appropriate Dialect to use",
                             sqlException
@@ -183,9 +184,22 @@ class InstallationServiceImpl implements InstallationService {
             // TODO: default roles and groups from primavera
             // PrimaveraConstants.BASE_ROLES.each { roles.save it }
             // PrimaveraConstants.BASE_GROUPS.each { groups.save it }
-            // TODO: groups must have roles inside
-            Constants.BASE_ROLES.each { roles.save it }
-            Constants.BASE_GROUPS.each { groups.save it }
+            BASE_ROLES
+                    .findAll { !roles.existsByRoleName(it.code) }
+                    .each { roles.save it }
+
+            BASE_GROUPS // FIXME
+                    .findAll {
+                !groups.existsByCode(it.code)
+            }.each { g ->
+                g.roles.each {
+                    RoleDTO actualRole = roles.findByRoleName(it.code)
+                    if (actualRole)
+                        it.id = actualRole.id
+                }
+            }.each {
+                groups.save it
+            }
             new File(getClass().getResource("classpath:/templates").toURI())
                     .listFiles()
                     .findAll { it.name.endsWith('.ezt') }

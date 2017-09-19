@@ -25,6 +25,12 @@ class InstallerRestService {
         ResponseEntity.ok("OK")
     }
 
+    @PostMapping("/basic")
+    ResponseEntity<String> addBaseData() {
+        installationService.addBaseData()
+        ResponseEntity.ok("OK")
+    }
+
     @GetMapping("/administrator")
     void createAdmin() {
 
