@@ -3,6 +3,7 @@ package it.ldsoftware.rinascimento.service.impl
 import groovy.util.logging.Slf4j
 import it.ldsoftware.primavera.presentation.base.AppPropertyDTO
 import it.ldsoftware.primavera.presentation.people.UserVM
+import it.ldsoftware.primavera.presentation.security.GroupDTO
 import it.ldsoftware.primavera.presentation.security.RoleDTO
 import it.ldsoftware.primavera.services.interfaces.GroupService
 import it.ldsoftware.primavera.services.interfaces.PropertyService
@@ -188,18 +189,11 @@ class InstallationServiceImpl implements InstallationService {
                     .findAll { !roles.existsByRoleName(it.code) }
                     .each { roles.save it }
 
-            BASE_GROUPS // FIXME
-                    .findAll {
-                !groups.existsByCode(it.code)
-            }.each { g ->
-                g.roles.each {
-                    RoleDTO actualRole = roles.findByRoleName(it.code)
-                    if (actualRole)
-                        it.id = actualRole.id
-                }
-            }.each {
-                groups.save it
-            }
+            BASE_GROUPS
+                    .findAll { !groups.existsByCode(it.code) }
+                    .each { instantiateId(it) }
+                    .each { groups.save it }
+
             new File(getClass().getResource("classpath:/templates").toURI())
                     .listFiles()
                     .findAll { it.name.endsWith('.ezt') }
@@ -207,6 +201,14 @@ class InstallationServiceImpl implements InstallationService {
                     .each { templates.save it }
         } catch (Exception e) {
             throw new SiteConfigurationException("Error while adding basic data to the database", e)
+        }
+    }
+
+    private void instantiateId(GroupDTO dto) {
+        dto.roles.each {
+            RoleDTO r = roles.findByRoleName(dto.code)
+            if (r)
+                dto.id = r.id
         }
     }
 
