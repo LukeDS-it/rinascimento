@@ -1,6 +1,7 @@
 package it.ldsoftware.rinascimento.extension
 
 import groovy.xml.MarkupBuilder
+import it.ldsoftware.rinascimento.service.WebPageService
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
 import org.springframework.context.ApplicationContext
 
@@ -52,10 +53,37 @@ abstract class Widget {
         }
     }
 
+    WebPageService getPageRepository() {
+        context.getBean(WebPageService)
+    }
+
+    void buildContent() {
+        def errors = checkParameters()
+        if (errors) {
+            builder.div class: 'widget-errors', {
+                p "Errors while creating widget:"
+                ul {
+                    errors.each {
+                        li it
+                    }
+                }
+            }
+        } else {
+            buildActualContent()
+        }
+    }
+
+    /**
+     * All widgets will need to implement the method, that will check if the parameters have been correctly set.
+     * If the function returns a non empty list, then instead of rendering the widget, all the errors in the list
+     * will be rendered.
+     */
+    abstract List<String> checkParameters()
+
     /**
      * All CMS widgets will need to implement this method that will add content to the page.
      */
-    abstract void buildContent()
+    abstract void buildActualContent()
 
     /**
      * All CMS widgets will need to implement this method that will build the configuration bit for the widget.

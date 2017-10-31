@@ -5,9 +5,13 @@ import it.ldsoftware.primavera.presentation.security.GroupDTO
 import it.ldsoftware.primavera.presentation.security.RoleDTO
 import it.ldsoftware.rinascimento.view.template.TemplateDTO
 
+import java.time.LocalDateTime
+
 class WebPageDTO extends TranslatableDTO<WebPageTranslationDTO> {
 
-    String title, language, content
+    String title, language, content, description, address, imgPreview
+
+    LocalDateTime publishedDate
 
     TemplateDTO template
 
@@ -25,6 +29,7 @@ class WebPageDTO extends TranslatableDTO<WebPageTranslationDTO> {
                 translation = translations.get defaultLang
 
             title = translation.title
+            description = translation.description
             language = translation.language
             content = translation.content
         }

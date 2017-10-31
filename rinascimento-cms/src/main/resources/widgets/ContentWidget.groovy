@@ -19,7 +19,10 @@ import it.ldsoftware.rinascimento.extension.Widget
 class ContentWidget extends Widget {
 
     @Override
-    void buildContent() {
+    List<String> checkParameters() { [] }
+
+    @Override
+    void buildActualContent() {
         builder.content(class: params.css) {
             mkp.yieldUnescaped(page.content)
         }

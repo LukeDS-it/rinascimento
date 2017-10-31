@@ -5,7 +5,10 @@ import it.ldsoftware.rinascimento.extension.Widget
 class TestWidget extends Widget {
 
     @Override
-    void buildContent() {
+    List<String> checkParameters() { [] }
+
+    @Override
+    void buildActualContent() {
         builder.div(params.text)
     }
 
