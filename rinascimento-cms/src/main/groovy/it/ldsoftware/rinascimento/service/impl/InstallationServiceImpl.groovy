@@ -182,9 +182,8 @@ class InstallationServiceImpl implements InstallationService {
     @Override
     void addBaseData() {
         try {
-            // TODO: default roles and groups from primavera
-            // PrimaveraConstants.BASE_ROLES.each { roles.save it }
-            // PrimaveraConstants.BASE_GROUPS.each { groups.save it }
+            roles.initRoles()
+            groups.initGroups()
             BASE_ROLES
                     .findAll { !roles.existsByRoleName(it.code) }
                     .each { roles.save it }
@@ -207,8 +206,7 @@ class InstallationServiceImpl implements InstallationService {
     private void instantiateId(GroupDTO dto) {
         dto.roles.each {
             RoleDTO r = roles.findByRoleName(dto.code)
-            if (r)
-                dto.id = r.id
+            if (r) it.id = r.id
         }
     }
 
