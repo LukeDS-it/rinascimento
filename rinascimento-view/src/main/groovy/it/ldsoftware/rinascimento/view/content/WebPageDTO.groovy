@@ -9,9 +9,9 @@ import java.time.LocalDateTime
 
 class WebPageDTO extends TranslatableDTO<WebPageTranslationDTO> {
 
-    String title, language, content, description, address, imgPreview
+    String mnemonicTitle, title, language, content, description, address, preview
 
-    LocalDateTime publishedDate
+    LocalDateTime startValidity, endValidity, publicationDate, lastEdit;
 
     TemplateDTO template
 

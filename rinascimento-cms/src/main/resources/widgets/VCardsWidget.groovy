@@ -71,14 +71,14 @@ class VCardsWidget extends Widget {
             content.each { page ->
                 div class: 'v-card' {
                     a href: page.address, class: 'card-img', {
-                        img src: page.imgPreview
+                        img src: page.preview
                     }
                     div class: 'card-content' {
                         h3 {
                             a href: page.address, page.title
                         }
-                        p class: 'date', page.publishedDate.format(DEFAULT_FORMATTER)
-                        p class: 'content', page.description.length() > 31 ? (page.description.take(30) + "&hellip;") : page.description
+                        p class: 'date', page.publicationDate.format(DEFAULT_FORMATTER)
+                        p class: 'content', page.description.length() <= 31 ?: (page.description.take(30) + "&hellip;")
                     }
                 }
             }
