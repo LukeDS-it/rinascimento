@@ -8,13 +8,13 @@ class TestWidget extends Widget {
     List<String> checkParameters() { [] }
 
     @Override
-    void buildActualContent() {
-        builder.div(params.text)
+    Map<String, Object> getModel() {
+        return [text: params.text]
     }
 
     @Override
-    void buildConfig() {
-
+    String getTemplateName() {
+        return "test-widget.html"
     }
 
     @Override

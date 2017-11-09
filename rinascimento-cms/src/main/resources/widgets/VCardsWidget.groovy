@@ -13,13 +13,11 @@ import java.time.format.FormatStyle
  *
  * Configuration JSON is as follows:
  * <code><pre>
- *  {
- *      mode: 'string',
+ *{*      mode: 'string',
  *      parent: number,
  *      skip: number,
  *      max: number
- *  }
- * </pre></code>
+ *}* </pre></code>
  *
  * The widget has three modes:
  * <ul>
@@ -47,7 +45,7 @@ class VCardsWidget extends Widget {
     }
 
     @Override
-    void buildActualContent() {
+    Map<String, Object> getModel() {
         def mode = params.mode
         def pageSize = params.size ?: 12
         Page<WebPageDTO> pages
@@ -67,28 +65,12 @@ class VCardsWidget extends Widget {
 
         def content = pages.getContent().drop(params.skip ?: 0).each { it.init(locale) }
 
-        builder.div class: 'cards-container', {
-            content.each { page ->
-                div class: 'v-card' {
-                    a href: page.address, class: 'card-img', {
-                        img src: page.preview
-                    }
-                    div class: 'card-content' {
-                        h3 {
-                            a href: page.address, page.title
-                        }
-                        p class: 'date', page.publicationDate.format(DEFAULT_FORMATTER)
-                        p class: 'content', page.description.length() <= 31 ?: (page.description.take(30) + "&hellip;")
-                    }
-                }
-            }
-        }
-
+        return [content: content, formatter: DEFAULT_FORMATTER]
     }
 
     @Override
-    void buildConfig() {
-
+    String getTemplateName() {
+        return "v-cards-widget.html"
     }
 
     @Override

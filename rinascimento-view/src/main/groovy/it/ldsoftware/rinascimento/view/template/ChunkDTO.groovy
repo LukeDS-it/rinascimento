@@ -13,13 +13,9 @@ import it.ldsoftware.primavera.presentation.base.BaseDTO
  *     with "type" being its type and "cssClass" its associated class.
  *     All of its children chunks will be rendered recursively inside it.
  * </p>
- * <p>
- *     <strong>Note</strong>: When used as a view object, widget is treated as a string containing
- *     the name of the widget script.
- * </p>
  * @author Luca Di Stefano
  */
 class ChunkDTO extends BaseDTO implements ChunkHolder {
-    def widget, params
-    String type = 'div', cssClass
+    def params
+    String type = 'div', cssClass, widget, rendered
 }

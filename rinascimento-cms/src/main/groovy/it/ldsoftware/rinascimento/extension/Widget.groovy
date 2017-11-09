@@ -1,76 +1,95 @@
 package it.ldsoftware.rinascimento.extension
 
-import groovy.xml.MarkupBuilder
+import it.ldsoftware.rinascimento.multitenancy.MultiTenancyUtils
 import it.ldsoftware.rinascimento.service.WebPageService
 import it.ldsoftware.rinascimento.view.content.WebPageDTO
 import org.springframework.context.ApplicationContext
+import org.thymeleaf.ITemplateEngine
+import org.thymeleaf.context.Context
+import org.thymeleaf.context.IContext
 
 import javax.servlet.http.HttpServletRequest
-import java.util.regex.Matcher
 
 /**
- * This defines the basic extension of the CMS.
- *
- * Within an extension you will have access to the complete environment of
- * the application and will be able to get all the beans by using the
- * <code>get***</code> notation with *** the name of the bean you need.
- * E.g. <code>getUserRepository</code> to get the user repository.
+ * A widget class is the basic companion object that is needed to create a widget that will be rendered on a page.
+ * <p>
+ * The companion object will need to create the map of parameters that the .html file has to render.
+ * <p>
+ * Within the companion object, you will have access to:
+ * <ul>
+ *     <li>The configuration parameters of the widget (these are fixed for the current template)</li>
+ *     <li>The current page ({@link WebPageDTO}, to access page-specific parameters.</li>
+ *     <li>The current request {@link HttpServletRequest}</li>
+ *     <li>All the data of the database (See documentation for the getter methods to learn more)</li>
+ * </ul>
  *
  * @author Luca Di Stefano
  */
 abstract class Widget {
 
-    ApplicationContext context
+    private static final String ERROR_TEMPLATE = "error-widget.html",
+                                FRAGMENT_START = "<!-- START FRAGMENT -->", FRAGMENT_END = "<!-- END FRAGMENT -->"
+
+    private ApplicationContext context
+    private ITemplateEngine templateEngine
+    private MultiTenancyUtils multiTenancy
 
     WebPageDTO page
     HttpServletRequest request
-    MarkupBuilder builder
     Locale locale
+
     def params
 
-    @SuppressWarnings("GroovyAssignabilityCheck")
-    Object methodMissing(String name, Object arguments) {
-        switch (name) {
-            case ~/^getApp(?:lication)?Context$/:
-                return context
-            case ~/^get(?!All)(.+)$/:
-                return context.getBean("${Matcher.lastMatcher[0][1]}".uncapitalize())
-            case ~/^getAll(.+)$/:
-                return context.getBeansOfType(Class.forName("$Matcher.lastMatcher[0][1]"))
-            default:
-                return null
+    String render() {
+        def errors = checkParameters()
+        def model
+        def template
+
+        if (errors) {
+            model = makeErrorModel(errors)
+            template = loadTemplate(ERROR_TEMPLATE)
+        } else {
+            model = getModel()
+            template = loadTemplate(getTemplateName())
         }
+
+        def widgetContext = makeWidgetContext(model)
+        templateEngine.process(template, widgetContext)
     }
 
-    Object propertyMissing(String name){
-        switch (name) {
-            case 'requestParams':
-                return request.getParameterMap()
-            case 'mkp':
-                return builder.mkp
-            default:
-                return null
-        }
+    private static Map<String, Object> makeErrorModel(List<String> errors) {
+        [
+                "message": "",
+                "errors" : errors
+        ]
     }
 
+    private String loadTemplate(String templateName) {
+        def template
+        String resPath = multiTenancy.getTenantExtensionDir().concat(templateName)
+        File resFile = new File(resPath)
+
+        if (resFile.exists())
+            template = resFile.text
+        else
+            template = getClass().getResource("classpath:widgets/resources/${templateName}").text
+
+        if (template.contains(FRAGMENT_START)) {
+            template = template.substring(template.indexOf(FRAGMENT_START), template.indexOf(FRAGMENT_END))
+        }
+
+        template
+    }
+
+    private IContext makeWidgetContext(Map<String, Object> model) {
+        new Context(locale, model)
+    }
+
+    /**
+     * @return The service used to search the web pages stored in the database.
+     */
     WebPageService getPageRepository() {
         context.getBean(WebPageService)
-    }
-
-    void buildContent() {
-        def errors = checkParameters()
-        if (errors) {
-            builder.div class: 'widget-errors', {
-                p "Errors while creating widget:"
-                ul {
-                    errors.each {
-                        li it
-                    }
-                }
-            }
-        } else {
-            buildActualContent()
-        }
     }
 
     /**
@@ -81,14 +100,18 @@ abstract class Widget {
     abstract List<String> checkParameters()
 
     /**
-     * All CMS widgets will need to implement this method that will add content to the page.
+     * This function must be implemented by the companion object. It must return all the values that the .html template
+     * expects to find inside the scope in order to correctly render.
+     *
+     * @return a map of string and objects
      */
-    abstract void buildActualContent()
+    abstract Map<String, Object> getModel()
 
     /**
-     * All CMS widgets will need to implement this method that will build the configuration bit for the widget.
+     * Represents the name of the template.
+     * Convention is the name of the widget in hyphen-case, however, this is not enforced.
      */
-    abstract void buildConfig()
+    abstract String getTemplateName()
 
     /**
      * Will return a list of additional CSS that are needed to correctly render the widget.
@@ -120,6 +143,15 @@ abstract class Widget {
         return []
     }
 
-    // TODO getAuthor, getName, getDescription, getVersion
+    void setContext(ApplicationContext context) {
+        this.context = context
+    }
 
+    void setTemplateEngine(ITemplateEngine templateEngine) {
+        this.templateEngine = templateEngine
+    }
+
+    void setMultiTenancy(MultiTenancyUtils multiTenancy) {
+        this.multiTenancy = multiTenancy
+    }
 }

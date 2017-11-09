@@ -1,0 +1,29 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>VCards example</title>
+</head>
+<body>
+<!-- START FRAGMENT -->
+<div class="v-cards-container">
+    <div class="v-card" th:each="page: ${content}">
+        <a href="#" class="card-img" th:href="${page.address}">
+            <img src="" th:src="${page.preview}" />
+        </a>
+        <div class="card-content">
+            <h3><a href="#" th:href="${page.address}" th:text="${page.title}"></a></h3>
+            <p class="v-card-date" th:text="${page.publicationDate.format(formatter)}">
+                31-12-2017
+            </p>
+            <p class="v-card-content" th:text="">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Sed vel ligula vitae ante mollis posuere ut id metus&hellip;
+            </p>
+        </div>
+    </div>
+</div>
+<!-- END FRAGMENT -->
+
+</body>
+</html>
