@@ -1,0 +1,21 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>VCards example</title>
+</head>
+<body>
+<!-- START FRAGMENT -->
+<content th:class="${css}">
+    <th:block th:if="${showTitle}">
+        <h1 th:text="${title}">Page title</h1>
+    </th:block>
+    <th:block th:text="${content}">
+        Content is shown here as an element of type &lt;content&gt;. Title is shown optionally if the
+        property "showTitle" is set as true.
+    </th:block>
+</content>
+<!-- END FRAGMENT -->
+
+</body>
+</html>

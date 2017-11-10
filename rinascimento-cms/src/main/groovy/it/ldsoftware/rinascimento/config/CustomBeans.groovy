@@ -9,6 +9,6 @@ import org.thymeleaf.TemplateEngine
 class CustomBeans {
     @Bean
     ITemplateEngine getTemplateEngine() {
-        new TemplateEngine()
+        new TemplateEngine() // TODO initialization?
     }
 }

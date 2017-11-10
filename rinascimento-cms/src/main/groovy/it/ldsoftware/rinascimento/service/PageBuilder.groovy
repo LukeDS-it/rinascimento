@@ -58,6 +58,9 @@ class PageBuilder {
         }
     }
 
+    /**
+     * Creates the page context with the information that will go in the base page template.
+     */
     private IContext makePageContext(WebPageDTO page, Locale locale, PageMode mode) {
         def propMap = [body       : renderChunks(page.template.chunks),
                        langCode   : locale.language,
@@ -72,6 +75,11 @@ class PageBuilder {
         new Context(locale, propMap)
     }
 
+    /**
+     * Initializes the single chunk, either creating a widget and rendering it or initializing the
+     * sub-chunks in the chunk. It also has the side effect of adding the css and js that each
+     * extension needs to be properly viewed
+     */
     private def initChunk(ChunkDTO chunk, WebPageDTO page, Locale locale, HttpServletRequest request) {
         if (chunk.widget) {
             Widget extension = loader.getExtension(chunk.widget as String, page, locale, request, chunk.params as String)
@@ -85,10 +93,22 @@ class PageBuilder {
         }
     }
 
+    /**
+     * Renders all the chunks
+     * @return html representation of the chunks
+     */
     private String renderChunks(List<ChunkDTO> chunks) {
-        chunks.collect this.&renderChunk
+        def sb = new StringBuilder()
+        chunks.each { sb.append(renderChunk(it)) }
+        sb.toString()
     }
 
+    /**
+     * Renders a single chunk.
+     *
+     * @return html representing the current chunk. Can be a widget (compiled in the previous steps) or a chunk, in
+     * which case the container is created beforehand.
+     */
     private String renderChunk(ChunkDTO chunk) {
         if (chunk.widget) {
             chunk.rendered
@@ -98,15 +118,13 @@ class PageBuilder {
             sb.append(chunk.type)
 
             if (chunk.cssClass) {
-                sb.append('class="')
+                sb.append(' class="')
                 sb.append(chunk.cssClass)
                 sb.append('"')
             }
             sb.append(">")
 
-            chunk.chunks.each {
-                sb.append(renderChunk(it))
-            }
+            sb.append(renderChunks(chunk.chunks))
 
             sb.append("<${chunk.type}>")
 

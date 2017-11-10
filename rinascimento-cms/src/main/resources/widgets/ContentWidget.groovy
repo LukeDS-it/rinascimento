@@ -8,13 +8,11 @@ import it.ldsoftware.rinascimento.extension.Widget
  * The content will go into a <code>&lt;content&gt;</code> tag to help
  * support of WAI-ARIA directives on usability.
  *
- * Configuration JSON is as follows:
- * <code><pre>
- *     {
- *         css: 'css-class-name',
- *         showTitle: bool
- *     }
- * </pre></code>
+ * Configuration parameters are:
+ * <ul>
+ *     <li>css: custom css class name</li>
+ *     <li>showTitle: boolean, indicates if page title must be rendered</li>
+ * </ul>
  */
 class ContentWidget extends Widget {
 
@@ -28,10 +26,9 @@ class ContentWidget extends Widget {
 
     @Override
     Map<String, Object> getModel() {
-        return [
+        return [content  : page.content,
+                css      : params.css,
                 showTitle: params.showTitle,
-                css: params.css,
-                content: page.content
-        ]
+                title    : page.title]
     }
 }
