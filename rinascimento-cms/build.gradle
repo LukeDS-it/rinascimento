@@ -71,3 +71,9 @@ war {
 bootRun {
     addResources = true
 }
+
+idea {
+    module {
+        excludeDirs += file "node_modules"
+    }
+}
