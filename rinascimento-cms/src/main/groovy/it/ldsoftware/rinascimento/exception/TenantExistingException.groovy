@@ -1,6 +1,6 @@
 package it.ldsoftware.rinascimento.exception
 
-class TenantExistingException extends RuntimeException {
+class TenantExistingException extends InstallationException {
 
     String tenant
 
