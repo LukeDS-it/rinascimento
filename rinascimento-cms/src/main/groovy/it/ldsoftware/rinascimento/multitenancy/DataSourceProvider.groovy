@@ -43,10 +43,10 @@ class DataSourceProvider extends AbstractDataSourceBasedMultiTenantConnectionPro
 
     @Override
     protected DataSource selectDataSource(String tenantIdentifier) {
-        sources.computeIfAbsent tenantIdentifier, {k -> instantiateDataSource(tenantIdentifier)}
+        sources.computeIfAbsent tenantIdentifier, {k -> getDataSource(tenantIdentifier)}
     }
 
-    private DataSource instantiateDataSource(String tenant) {
+    DataSource getDataSource(String tenant) {
         File file = new File(utils.getTenantProperties())
         Properties properties = new Properties()
 

@@ -12,6 +12,7 @@ import it.ldsoftware.rinascimento.view.content.WebPageDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
+import org.springframework.transaction.CannotCreateTransactionException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
@@ -41,12 +42,15 @@ class ErrorController extends AbstractPageController {
         log.info "Could not find resource at path ${e.resource}"
     }
 
+    @ResponseBody
+    @ExceptionHandler(CannotCreateTransactionException)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "The tenant has not been configured")
-    @ExceptionHandler(TenantNotConfiguredException.class)
-    String tenantNotConfigured(TenantNotConfiguredException e) {
-        log.info "The tenant for ${e.tenant} has not been configured. Redirecting to configuration."
-
-        "cms-install-login"
+    String tenantNotConfigured(CannotCreateTransactionException e, Locale locale, HttpServletRequest request) {
+        if (e.cause instanceof TenantNotConfiguredException) {
+            log.error "The tenant for ${e.cause.tenant} has not been configured. Redirecting to configuration."
+            return "redirect:/cms-install"
+        }
+        return buildErrorPage("Unknown error", e.message, KEY_500_TEMPLATE, locale, request)
     }
 
     @ResponseBody
