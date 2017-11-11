@@ -66,19 +66,15 @@ abstract class Widget {
 
     private String loadTemplate(String templateName) {
         def template
-        String resPath = multiTenancy.getTenantExtensionDir().concat(templateName)
+        String resPath = multiTenancy.getTenantExtensionDir().concat("resources/html/${templateName}")
         File resFile = new File(resPath)
 
         if (resFile.exists())
             template = resFile.text
         else
-            template = getClass().getResource("classpath:widgets/resources/${templateName}").text
+            template = getClass().getClassLoader().getResource("widgets/resources/html/${templateName}").text
 
-        if (template.contains(FRAGMENT_START)) {
-            template = template.substring(template.indexOf(FRAGMENT_START), template.indexOf(FRAGMENT_END))
-        }
-
-        template
+        template.substring(template.indexOf(FRAGMENT_START) + FRAGMENT_START.length(), template.indexOf(FRAGMENT_END))
     }
 
     private IContext makeWidgetContext(Map<String, Object> model) {

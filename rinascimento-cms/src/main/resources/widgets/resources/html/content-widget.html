@@ -2,7 +2,7 @@
 <!--suppress ALL -->
 <html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>VCards example</title>
+    <title>Content example</title>
 </head>
 <body>
 <!-- START FRAGMENT -->
@@ -10,7 +10,7 @@
     <th:block th:if="${showTitle}">
         <h1 th:text="${title}">Page title</h1>
     </th:block>
-    <th:block th:text="${content}">
+    <th:block th:utext="${content}">
         Content is shown here as an element of type &lt;content&gt;. Title is shown optionally if the
         property "showTitle" is set as true.
     </th:block>

@@ -38,7 +38,7 @@ class PageBuilder {
     String buildPage(WebPageDTO page, Locale locale, HttpServletRequest request, PageMode mode) {
         initPage(page, locale, request)
 
-        def pageTemplate = getClass().getResource(PAGE_BASE).text
+        def pageTemplate = getClass().getClassLoader().getResource(PAGE_BASE).text
         def pageContext = makePageContext(page, locale, mode)
 
         templateEngine.process(pageTemplate, pageContext)
@@ -51,9 +51,9 @@ class PageBuilder {
      * @param locale locale of the current session
      * @param request servlet request
      */
-    private static void initPage(WebPageDTO page, Locale locale, HttpServletRequest request) {
+    private void initPage(WebPageDTO page, Locale locale, HttpServletRequest request) {
         page.init(locale)
-        page.template.chunks.parallelStream().each {
+        page.template.chunks.parallelStream().forEach {
             initChunk it, page, locale, request
         }
     }
@@ -126,7 +126,7 @@ class PageBuilder {
 
             sb.append(renderChunks(chunk.chunks))
 
-            sb.append("<${chunk.type}>")
+            sb.append("</${chunk.type}>")
 
             sb.toString()
         }
