@@ -34,13 +34,29 @@ abstract class Widget {
     private ITemplateEngine templateEngine
     private MultiTenancyUtils multiTenancy
 
-    WebPageDTO page
-    HttpServletRequest request
-    Locale locale
-
+    /**
+     * Parameters that go in input to the widget.
+     * The actual content is a Groovy object created by the {@link groovy.json.JsonSlurper}
+     * giving in input the parameters in JSON format.
+     */
     def params
 
-    String render() {
+    /**
+     * Current locale of the browsing session.
+     */
+    Locale locale
+
+    /**
+     * View object of the page that is currently being rendered
+     */
+    WebPageDTO page
+
+    /**
+     * Current request of the browsing session.
+     */
+    HttpServletRequest request
+
+    final String render() {
         def errors = checkParameters()
         def model
         def template
@@ -58,16 +74,14 @@ abstract class Widget {
     }
 
     private static Map<String, Object> makeErrorModel(List<String> errors) {
-        [
-                "message": "",
-                "errors" : errors
-        ]
+        ["message": "",
+         "errors" : errors]
     }
 
     private String loadTemplate(String templateName) {
         def template
-        String resPath = multiTenancy.getTenantExtensionDir().concat("resources/html/${templateName}")
-        File resFile = new File(resPath)
+        def resPath = multiTenancy.getTenantExtensionDir().concat("resources/html/${templateName}")
+        def resFile = new File(resPath)
 
         if (resFile.exists())
             template = resFile.text
